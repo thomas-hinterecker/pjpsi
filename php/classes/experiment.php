@@ -198,9 +198,9 @@ class Experiment {
             )
         );
         foreach ($result as $row) {
-            if ($row['end'] == null && strtotime($row['begin']) <= (time() - $f3->get('CONFIG')['dismiss_after'])) {
+            /*if ($row['end'] == null && strtotime($row['begin']) <= (time() - $f3->get('CONFIG')['dismiss_after'])) {
                 continue;
-            }
+            }*/
             $conditions[$row['cond']]++;
             $counterbalances[$row['counterbalance']]++;
         }

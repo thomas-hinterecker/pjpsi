@@ -276,7 +276,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		$('#query').html(
 			'<div id="step2">'
 				+ '<p>'
-				+ '<b>What are the chances out of 100 that each of the following assertions (1 to 5) is true?</b>'
+				+ '<b>What are the chances out of 100 that each of the following assertions (1 to 6) is true?</b>'
 				+ '<br /><br />Choose a number from 0 (no chance at all) to 100 (completely certain) for each assertion by using the sliders.'
 				+ ' If you cannot see a complete page on your system, please scroll down to the rest of the page.'
 				+ '</p>'
