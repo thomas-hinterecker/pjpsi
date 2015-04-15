@@ -143,12 +143,12 @@ class Analyze {
 
                 // check versions
                 foreach ($subjects[$count]['versions'] as $version => $num) {
-                    if (($version == 1 && $num != 8)
+                    if (($version == 1 && $num != 6)
                         || ($version == 2 && $num != 4)
-                        || ($version == 3 && $num != 2)
-                        || ($version == 4 && $num != 2)
+                        || ($version == 3 && $num != 1)
+                        || ($version == 4 && $num != 1)
                         ) {
-                            echo 'VERSION ERROR!!<br />';
+                            echo $version . ' VERSION ERROR!!<br />';
                     }
                 }
 

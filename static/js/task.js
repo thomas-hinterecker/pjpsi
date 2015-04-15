@@ -31,22 +31,23 @@ function not () {
 
 var practice_materials = [
 	[
-		17,
+		13,
 		'The human race will be able to generate sustainable energy by nuclear fusion within the next 20 years', 
 		'energy will become drastically more expensive by then', 
 		'The human race will ' + not() + ' be able to generate sustainable energy by nuclear fusion within the next 20 years', 
 		'energy will ' + not() + ' become drastically more expensive by then',
 		1
 	],
-	[
+	/*[
 		18,
 		'The United States will enact laws which prescribe the use of water', 
 		'cities in dry and hot areas will overcome their problem of severe water shortages', 
 		'The United States will ' + not() + ' enact laws which prescribe the use of water', 
 		'cities in dry and hot areas will ' + not() + ' overcome their problem of severe water shortages',
 		2
-	]
+	]*/
 ];
+var practice_num = practice_materials.length;
 
 var materials = [
 	[
@@ -56,98 +57,98 @@ var materials = [
 		'The United States will ' + not() + ' sign the Kyoto Protocol and commit to reducing CO2 emissions', 
 		'global temperatures will ' + not() + ' reach a theoretical point of no return in the next 100 years'
 	],
-	[
+	/*[
 		2,
 		' US companies focus their advertising on the Web next year', 
 		'the New York Times becomes more profitable', 
 		' US companies will ' + not() + ' focus their advertising on the Web next year', 
 		'the New York Times will ' + not() + ' become more profitable'
-	],
+	],*/
 	[
-		3,
+		2,
 		'Intellectual property law in the US will be updated to a reflect advances in technology by the year 2040', 
 		'Russia will become the world center for software development by 2040', 
 		'Intellectual property law in the US will ' + not() + ' be updated to a reflect advances in technology by the year 2040', 
 		'Russia will ' + not() + ' become the world center for software development by 2040'
 	],
 	[
-		4,
+		3,
 		'A nuclear weapon will be used in a terrorist attack in the next decade', 
 		'there will be a substantial decrease in terrorist activity in the next 10 years', 
 		'A nuclear weapon will ' + not() + ' be used in a terrorist attack in the next decade', 
 		'there will ' + not() + ' be a substantial decrease in terrorist activity in the next 10 years'
 	],
 	[
-		5,
+		4,
 		'The United States adopts an open border policy of universal acceptance', 
 		'English is legally declared the official language of the United States', 
 		'The United States does ' + not() + ' adopt an open border policy of universal acceptance', 
 		'English is ' + not() + ' legally declared the official language of the United States'
 	],
 	[
-		6,
+		5,
 		' Greece will make a full economic recovery in the next 10 years', 
 		'Greece will be forced to leave the EU in the next 10 years', 
 		' Greece will ' + not() + ' make a full economic recovery in the next 10 years', 
 		'Greece will ' + not() + ' be forced to leave the EU in the next 10 years'
 	],
 	[
-		7,
+		6,
 		'Scientists will discover a cure for Parkinson\'s disease in 10 years', 
 		'the number of patients who suffer from Parkinson\'s disease will triple by 2050', 
 		'Scientists will ' + not() + ' discover a cure for Parkinson\'s disease in 10 years', 
 		'the number of patients who suffer from Parkinson\'s disease will ' + not() + ' triple by 2050'
 	],
-	[
+	/*[
 		8,
 		' Honda will go bankrupt in 2016', 
 		'Ford will go bankrupt before the end of 2017', 
 		' Honda will ' + not() + ' go bankrupt in 2016', 
 		'Ford will ' + not() + ' go bankrupt before the end of 2017'
-	],
+	],*/
 	[
-		9,
+		7,
 		'A new illegal but synthetic drug becomes popular in the USA over the next two years', 
 		'the movement to decriminalize drugs doubles its numbers by 2017', 
 		'A new illegal but synthetic drug will ' + not() + ' become popular in the USA over the next two years', 
 		'the movement to decriminalize drugs will ' + not() + ' double its numbers by 2017'
 	],
 	[
-		10,
+		8,
 		'3-dimensional graphics will be required to contain explicit markers to indicate their unreal nature by 2020', 
 		'competitive video game playing will achieve mainstream acceptance by 2020', 
 		'3-dimensional graphics will ' + not() + ' be required to contain explicit markers to indicate their unreal nature by 2020', 
 		'competitive video game playing will ' + not() + ' achieve mainstream acceptance by 2020'
 	],
 	[
-		11,
+		9,
 		'The Supreme Court rules on the constitutionality of gay marriage in the next 5 years', 
 		'a gay person will be elected as president in the next 50 years', 
 		'The Supreme Court will ' + not() + ' rule on the constitutionality of gay marriage in the next 5 years', 
 		'a gay person will ' + not() + ' be elected as president in the next 50 years'
 	],
 	[
-		12,
+		10,
 		'In less than 15 years, millions of people will live past 100', 
 		'advances in genetics will end the shortage of replacement organs in the next 15 years', 
 		'In less than 15 years, millions of people will ' + not() + ' live past 100', 
 		'advances in genetics will ' + not() + ' end the shortage of replacement organs in the next 15 years'
 	],
 	[
-		13,
+		11,
 		'Space tourism will achieve widespread popularity in the next 50 years', 
 		'advances in material science will lead to the development of anti-gravity materials in the next 50 years', 
 		'Space tourism will ' + not() + ' achieve widespread popularity in the next 50 years', 
 		'advances in material science will ' + not() + ' lead to the development of anti-gravity materials in the next 50 years'
 	],
 	[
-		14,
+		12,
 		'Intelligent alien life is found outside the solar system in the next 10 years', 
 		'world governments dedicate more resources to contacting extra-terrestrials', 
 		'Intelligent alien life is ' + not() + ' found outside the solar system in the next 10 years', 
 		'world governments will ' + not() + ' dedicate more resources to contacting extra-terrestrials'
 	],
-	[
+	/*[
 		15,
 		'The legal drinking age will be lowered in the United States in the next few years', 
 		'The number of traffic accidents goes up in in the next few years', 
@@ -160,12 +161,13 @@ var materials = [
 		'NATO will grant military support to Iraq and help defeating the Islamic State', 
 		'The Islamic State will ' + not() + ' carry out a terroristic attack in the next months', 
 		'NATO will ' + not() + ' grant military support to Iraq and help defeating the Islamic State'
-	],
+	],*/
 ];
+var task_num = materials.length;
 
 // balancing
-var curr_material = mycounterbalance % 16;
-versions = [8, 4, 2, 2];
+var curr_material = mycounterbalance % task_num;
+versions = [6, 4, 1, 1];
 var material_count = 0;
 var version_count = 0;
 var curr_version = -1;
@@ -184,14 +186,12 @@ while (material_count < materials.length) {
 	curr_version = -1;
 	++material_count;
 	++curr_material;
-	if (curr_material > 15) {
+	if (curr_material == materials.length) {
 		curr_material = 0;
 	}
 }
-
 materials = _.shuffle(materials);
 
-materials.push(practice_materials[1]);
 materials.push(practice_materials[0]);
 materials.reverse();
 
@@ -246,7 +246,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 						var rt = new Date().getTime() - timeon;
 
 						var phase = "TEST_INFERENCE";
-						if (inference[0] > 16) {
+						if (inference[0] > task_num) {
 							phase = "PRACTICE_INFERENCE";
 						}
 
@@ -311,7 +311,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 					var rt = new Date().getTime() - timeon;
 
 					var phase = "TEST_LIKELIHOODS";
-					if (inference[0] > 16) {
+					if (inference[0] > task_num) {
 						phase = "PRACTICE_LIKELIHOODS";
 					}
 
@@ -403,25 +403,27 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	};*/
 	
 	var show_inference = function(inference) {
-		if (inference[0] < 17) {
+		if (inference[0] <= task_num) {
 			var premise = get_disjunction(inference[1], inference[2], inference[5]);
-		} else if (inference[0] == 17) {
+		} else if (inference[0] == task_num + 1) {
 			var premise = 'IF ' + lowercaseFirstLetter(inference[1]) + ' THEN ' + inference[2] + '.';
-		} else if (inference[0] == 18) {
-			var premise = '' + inference[1] + ' UNLESS ' + inference[2] + '.';
 		}
+		/*} else if (inference[0] == 18) {
+			var premise = '' + inference[1] + ' UNLESS ' + inference[2] + '.';
+		}*/
 		d3.select("#inference")
 			.append("div")
 			.attr("id","premise")
 			.text("Premise: " + premise);
 
-		if (inference[0] < 17) {
+		if (inference[0] <= task_num) {
 			var conclusion = get_conclusion(inference);
-		} else if (inference[0] == 17) {
+		} else if (inference[0] == task_num + 1) {
 			var conclusion = get_conclusion(inference);
-		} else if (inference[0] == 18) {
+		}
+		/*} else if (inference[0] == 18) {
 			var conclusion = 'It is possible that ' + lowercaseFirstLetter(get_conjunction(inference, 'na-and-nb'));
-		}		
+		}*/	
 		d3.select("#inference")
 			.append("div")
 			.attr("id","conclusion")

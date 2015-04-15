@@ -53,7 +53,7 @@ class Experiment {
         if (empty($uniqueId) == false && $f3->get('subject.exists') == true) {
             if ($f3->get('subject.cond') == null && $f3->get('subject.counterbalance') == null) {
                 // cond and counterbalance
-                list($cond, $counterbalance) = $this->_findGroups($f3);
+                list($cond, $counterbalance) = $this->_findGroups($f3, $uniqueId);
                 $f3->get('DB')->exec(
                     'UPDATE data SET `cond`=:cond, `counterbalance`=:counterbalance, `status`=:status WHERE uniqueid=:id',
                     array(
@@ -185,14 +185,17 @@ class Experiment {
         }
     }
 
-    function _findGroups ($f3) {
+    function _findGroups ($f3, $uniqueId) {
         $conditions = array_fill(0, (int) $f3->get('CONFIG')['num_conds'], 0);
         $counterbalances = array_fill(0, (int) $f3->get('CONFIG')['num_counters'], 0);
 
         // get the already used conds and balances
         $result = $f3->get('DB')->exec(
-            'SELECT `cond`, `counterbalance`, `end`, `begin` FROM data WHERE status!=?', 
-            $f3->get('STATUS.QUITEARLY')
+            'SELECT `cond`, `counterbalance`, `end`, `begin` FROM data WHERE uniqueid!=:id && `status`!=:status', 
+            array(
+                ':id' => $uniqueId,
+                ':status' => $f3->get('STATUS.QUITEARLY')
+            )
         );
         foreach ($result as $row) {
             if ($row['end'] == null && strtotime($row['begin']) <= (time() - $f3->get('CONFIG')['dismiss_after'])) {
