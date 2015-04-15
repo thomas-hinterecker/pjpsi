@@ -79,7 +79,7 @@ class Analyze {
 
             }
             echo "<br />";
-            echo "ID;howtoimprove;logic_course;engagement;difficulty<br />";
+            echo "ID;age;language;howtoimprove;logic_course;engagement;difficulty;sex<br />";
             foreach ($subjects as $subject) {
                 echo $subject['uniqueid'] . ";";
                 foreach ($subject['postquestionnaire'] as $data) {
