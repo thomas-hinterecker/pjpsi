@@ -15,13 +15,6 @@
 Backbone.Notifications = {};
 _.extend(Backbone.Notifications, Backbone.Events);
 
-// If you want to work with a legacy web server that doesn't support Backbone's default REST/HTTP approach,
-// you may choose to turn on Backbone.emulateHTTP and Backbone.emulateJSON.
-/*
-Backbone.emulateHTTP = true;
-Backbone.emulateJSON = true;
-*/
-
 /*******
  * API *
  ******/

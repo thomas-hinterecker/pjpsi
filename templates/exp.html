@@ -20,6 +20,11 @@
 		<script src="{{ @BASE }}/static/lib/d3.v3.min.js" type="text/javascript"> </script>
 
 		<script type="text/javascript">
+			// If you want to work with a legacy web server that doesn't support Backbone's default REST/HTTP approach,
+			// you may choose to turn on Backbone.emulateHTTP and Backbone.emulateJSON in the experiment.cfg.
+			{{ @emulateHTTP }}
+			{{ @emulateJSON }}
+
 			// These fields provided by the Server
 			//var id = "{{ @subject.id }}";  // a unique string identifying the worker/task
 			var prolificid = "{{ @subject.prolificid }}";  // a unique string identifying the worker/task

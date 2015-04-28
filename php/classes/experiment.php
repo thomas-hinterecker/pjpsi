@@ -20,7 +20,7 @@ class Experiment {
                     $f3->set('subject.counterbalance', (int) $result[0]['counterbalance']);
                     $status = (int) $result[0]['status'];
                     
-                    if ($f3->get('MODE') == 'live' && $status > $f3->get('STATUS.ALLOCATED')) {
+                    if ($f3->get('mode') == 'live' && $status > $f3->get('STATUS.ALLOCATED')) {
                         if ($status >= $f3->get('STATUS.STARTED') && $status <= $f3->get('STATUS.CREDITED')) {
                             $errornum = 1010;
                         } else if ($status == $f3->get('STATUS.QUITEARLY')) {
@@ -69,8 +69,21 @@ class Experiment {
                 $f3->set('subject.condition', $condition);
                 $f3->set('subject.counterbalance', $counterbalance);                
             }
+
     	    $f3->set('subject.prolificid', $prolificid);
-            $f3->set('MODE', $f3->get('MODE'));
+
+            // Emulate HTTP or JSON?
+            if ($f3->get('emulateHTTP') == true) {
+                $f3->set('emulateHTTP', 'Backbone.emulateHTTP = true;');
+            } else {
+                $f3->set('emulateHTTP', '');
+            }
+            if ($f3->get('emulateJSON') == true) {
+                $f3->set('emulateJSON', 'Backbone.emulateJSON = true;');            
+            } else {
+                $f3->set('emulateJSON', '');
+            }
+
             echo Template::instance()->render('templates/exp.html');
         } else {
             $f3->reroute('@errorpage(@errornum=1000,@prolificid=' . $prolificid . ')');
@@ -84,8 +97,8 @@ class Experiment {
                 'SELECT count(1) AS `exists`, `status` FROM data WHERE prolificid=?', 
                 $prolificid
             );
-            if ($f3->get('MODE') == 'debug' || $result[0]['exists'] == true) {
-                if ($f3->get('MODE') == 'debug' 
+            if ($f3->get('mode') == 'debug' || $result[0]['exists'] == true) {
+                if ($f3->get('mode') == 'debug' 
                     || $result[0]['status'] == $f3->get('STATUS.STARTED')
                     || $result[0]['status'] == $f3->get('STATUS.QUITEARLY')) {
                     $f3->set('prolificid', $prolificid);
