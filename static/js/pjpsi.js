@@ -18,7 +18,7 @@ _.extend(Backbone.Notifications, Backbone.Events);
 /*******
  * API *
  ******/
-var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
+var PJPsi = function(prolificid, serverLoc, mode) { // serverLoc
 	mode = mode || "live";  // defaults to live mode in case user doesn't pass this
 	var self = this;
 
@@ -49,9 +49,9 @@ var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
 			this.addEvent('initialized', null);
 			this.addEvent('window_resize', [window.innerWidth, window.innerHeight]);
 
-			this.listenTo(Backbone.Notifications, '_psiturk_lostfocus', function() { this.addEvent('focus', 'off'); });
-			this.listenTo(Backbone.Notifications, '_psiturk_gainedfocus', function() { this.addEvent('focus', 'on'); });
-			this.listenTo(Backbone.Notifications, '_psiturk_windowresize', function(newsize) { this.addEvent('window_resize', newsize); });
+			this.listenTo(Backbone.Notifications, '_pjpsi_lostfocus', function() { this.addEvent('focus', 'off'); });
+			this.listenTo(Backbone.Notifications, '_pjpsi_gainedfocus', function() { this.addEvent('focus', 'on'); });
+			this.listenTo(Backbone.Notifications, '_pjpsi_windowresize', function(newsize) { this.addEvent('window_resize', newsize); });
 		},
 
 		addTrialData: function(trialdata) {
@@ -104,7 +104,7 @@ var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
 	var Instructions = function(parent, pages, callback) {
 
 		var self = this;
-		var psiturk = parent;
+		var pjpsi = parent;
 		var currentscreen = 0, timestamp;
 		var instruction_pages = pages; 
 		var complete_fn = callback;
@@ -112,17 +112,17 @@ var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
 		var loadPage = function() {
 
 			// show the page
-			psiturk.showPage(instruction_pages[currentscreen]);
+			pjpsi.showPage(instruction_pages[currentscreen]);
 
 			// connect event handler to previous button
 			if(currentscreen != 0) {  // can't do this if first page
-				$('.previous').bind('click.psiturk.instructionsnav.prev', function() {
+				$('.previous').bind('click.pjpsi.instructionsnav.prev', function() {
 					prevPageButtonPress();
 				});
 			}
 
 			// connect event handler to continue button
-			$('.continue').bind('click.psiturk.instructionsnav.next', function() {
+			$('.continue').bind('click.pjpsi.instructionsnav.next', function() {
 				nextPageButtonPress();
 			});
 			
@@ -140,7 +140,7 @@ var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
 			if (currentscreen < 0) {
 				currentscreen = 0; // can't go back that far
 			} else {
-				psiturk.recordTrialData({"phase":"INSTRUCTIONS", "template":pages[viewedscreen], "indexOf":viewedscreen, "action":"PrevPage", "viewTime":rt});
+				pjpsi.recordTrialData({"phase":"INSTRUCTIONS", "template":pages[viewedscreen], "indexOf":viewedscreen, "action":"PrevPage", "viewTime":rt});
 				loadPage(instruction_pages[currentscreen]);
 			}
 
@@ -154,10 +154,10 @@ var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
 			currentscreen = currentscreen + 1;
 
 			if (currentscreen == instruction_pages.length) {
-				psiturk.recordTrialData({"phase":"INSTRUCTIONS", "template":pages[viewedscreen], "indexOf":viewedscreen, "action":"FinishInstructions", "viewTime":rt});
+				pjpsi.recordTrialData({"phase":"INSTRUCTIONS", "template":pages[viewedscreen], "indexOf":viewedscreen, "action":"FinishInstructions", "viewTime":rt});
 				finish();
 			} else {
-				psiturk.recordTrialData({"phase":"INSTRUCTIONS", "template":pages[viewedscreen], "indexOf":viewedscreen, "action":"NextPage", "viewTime":rt});
+				pjpsi.recordTrialData({"phase":"INSTRUCTIONS", "template":pages[viewedscreen], "indexOf":viewedscreen, "action":"NextPage", "viewTime":rt});
 				loadPage(instruction_pages[viewedscreen]);
 			}
 
@@ -166,13 +166,13 @@ var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
 		var finish = function() {
 
 			// unbind all instruction related events
-			$('.continue').unbind('click.psiturk.instructionsnav.next');
-			$('.previous').unbind('click.psiturk.instructionsnav.prev');
+			$('.continue').unbind('click.pjpsi.instructionsnav.next');
+			$('.previous').unbind('click.pjpsi.instructionsnav.prev');
 
 			// Record that the user has finished the instructions and 
 			// moved on to the experiment. This changes their status code
 			// in the database.
-			psiturk.finishInstructions();
+			pjpsi.finishInstructions();
 
 			// Move on to the experiment 
 			complete_fn();
@@ -188,7 +188,7 @@ var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
 		self.loadFirstPage = function () { loadPage(); }
 
 		// log instruction are starting
-		psiturk.recordTrialData({"phase":"INSTRUCTIONS", "templates":pages, "action":"Begin"});
+		pjpsi.recordTrialData({"phase":"INSTRUCTIONS", "templates":pages, "action":"Begin"});
 
 		return self;
 	};
@@ -288,11 +288,11 @@ var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
 	
 	// Notify app that participant has begun main experiment
 	self.finishInstructions = function(optmessage) {
-		Backbone.Notifications.trigger('_psiturk_finishedinstructions', optmessage);
+		Backbone.Notifications.trigger('_pjpsi_finishedinstructions', optmessage);
 	};
 	
 	self.teardownTask = function(optmessage) {
-		Backbone.Notifications.trigger('_psiturk_finishedtask', optmessage);
+		Backbone.Notifications.trigger('_pjpsi_finishedtask', optmessage);
 	};
 
 	self.complete = function() {
@@ -328,21 +328,21 @@ var PsiTurk = function(prolificid, serverLoc, mode) { // serverLoc
 
 
 	/* Backbone stuff */
-	Backbone.Notifications.on('_psiturk_finishedinstructions', self.startTask);
-	Backbone.Notifications.on('_psiturk_finishedtask', function(msg) { $(window).off("beforeunload"); });
+	Backbone.Notifications.on('_pjpsi_finishedinstructions', self.startTask);
+	Backbone.Notifications.on('_pjpsi_finishedtask', function(msg) { $(window).off("beforeunload"); });
 
 
 	$(window).blur( function() {
-		Backbone.Notifications.trigger('_psiturk_lostfocus');
+		Backbone.Notifications.trigger('_pjpsi_lostfocus');
 	});
 
 	$(window).focus( function() {
-		Backbone.Notifications.trigger('_psiturk_gainedfocus');	
+		Backbone.Notifications.trigger('_pjpsi_gainedfocus');	
 	});
 
 	// track changes in window size
 	var triggerResize = function() {
-		Backbone.Notifications.trigger('_psiturk_windowresize', [window.innerWidth, window.innerHeight]);
+		Backbone.Notifications.trigger('_pjpsi_windowresize', [window.innerWidth, window.innerHeight]);
 	};
 
 	// set up the window resize trigger

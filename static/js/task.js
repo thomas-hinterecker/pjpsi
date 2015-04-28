@@ -1,13 +1,13 @@
 /*
  * Requires:
- *     psiturk.js
+ *     pjpsi.js
  *     utils.js
  */
 
-// Initalize psiturk object
-var psiTurk = new PsiTurk(prolificid, adServerLoc, mode);
+// Initalize pjpsi object
+var pjpsi = new PJPsi(prolificid, adServerLoc, mode);
 
-var mycondition = condition;  // these two variables are passed by the psiturk server process
+var mycondition = condition;  // these two variables are passed by the pjpsi server process
 var mycounterbalance = counterbalance;  // they tell you which condition you have been assigned to
 
 // All pages to be loaded
@@ -18,7 +18,7 @@ var pages = [
 	"postquestionnaire.html"
 ];
 
-psiTurk.preloadPages(pages);
+pjpsi.preloadPages(pages);
 
 var instructionPages = [ // add as a list as many pages as you like
 	"instructions/instruct-1.html",
@@ -199,8 +199,8 @@ materials.reverse();
 * HTML manipulation
 *
 * All HTML files in the templates directory are requested 
-* from the server when the PsiTurk object is created above. We
-* need code to get those pages from the PsiTurk object and 
+* from the server when the pjpsi object is created above. We
+* need code to get those pages from the pjpsi object and 
 * insert them into the document.
 *
 ********************/
@@ -250,7 +250,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 							phase = "PRACTICE_INFERENCE";
 						}
 
-						psiTurk.recordTrialData(
+						pjpsi.recordTrialData(
 							{
 								'phase':phase,
 								'response':response,
@@ -315,7 +315,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 						phase = "PRACTICE_JPD";
 					}
 
-					psiTurk.recordTrialData(
+					pjpsi.recordTrialData(
 						{
 							'phase':phase,
 							'response':response,
@@ -396,7 +396,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 						phase = "PRACTICE_LIKELIHOODS";
 					}
 
-					psiTurk.recordTrialData(
+					pjpsi.recordTrialData(
 						{
 							'phase':phase,
 							'response':response,
@@ -583,7 +583,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	};
 
 	// Load the stage.html snippet into the body of the page
-	psiTurk.showPage('stage.html');
+	pjpsi.showPage('stage.html');
 
 	// Register the response handler that is defined above to handle any
 	// key down events.
@@ -604,16 +604,16 @@ var Questionnaire = function() {
 
 	var record_responses = function() {
 
-		psiTurk.recordTrialData({'phase':'postquestionnaire', 'status':'submit'});
+		pjpsi.recordTrialData({'phase':'postquestionnaire', 'status':'submit'});
 
 		$('input').each( function(i, val) {
-			psiTurk.recordUnstructuredData(this.id, this.value);
+			pjpsi.recordUnstructuredData(this.id, this.value);
 		});
 		$('textarea').each( function(i, val) {
-			psiTurk.recordUnstructuredData(this.id, this.value);
+			pjpsi.recordUnstructuredData(this.id, this.value);
 		});
 		$('select').each( function(i, val) {
-			psiTurk.recordUnstructuredData(this.id, this.value);		
+			pjpsi.recordUnstructuredData(this.id, this.value);		
 		});
 
 	};
@@ -627,27 +627,27 @@ var Questionnaire = function() {
 		replaceBody("<h1>Trying to resubmit...</h1>");
 		reprompt = setTimeout(prompt_resubmit, 10000);
 		
-		psiTurk.saveData({
+		pjpsi.saveData({
 			success: function() {
 			    clearInterval(reprompt); 
-                psiTurk.computeBonus('compute_bonus', function(){finish()}); 
+                pjpsi.computeBonus('compute_bonus', function(){finish()}); 
 			}, 
 			error: prompt_resubmit
 		});
 	};
 
 	// Load the questionnaire snippet 
-	psiTurk.showPage('postquestionnaire.html');
-	psiTurk.recordTrialData({'phase':'postquestionnaire', 'status':'begin'});
+	pjpsi.showPage('postquestionnaire.html');
+	pjpsi.recordTrialData({'phase':'postquestionnaire', 'status':'begin'});
 	
 	$("#next").click(function () {
 	    record_responses();
-	    psiTurk.saveData({
+	    pjpsi.saveData({
             success: function(){
-                /*psiTurk.computeBonus('compute_bonus', function() { 
-                	psiTurk.completeHIT(); // when finished saving compute bonus, the quit
+                /*pjpsi.computeBonus('compute_bonus', function() { 
+                	pjpsi.completeHIT(); // when finished saving compute bonus, the quit
                 });*/
-                psiTurk.complete(); // when finished saving compute bonus, the quit
+                pjpsi.complete(); // when finished saving compute bonus, the quit
             }, 
             error: prompt_resubmit});
 	});
@@ -663,7 +663,7 @@ var currentview;
  ******************/
 $(window).load(
 	function () {
-	    psiTurk.doInstructions(
+	    pjpsi.doInstructions(
 	    	instructionPages, // a list of pages you want to display in sequence
 	    	function() { currentview = new ReasoningExperiment(materials); } // what you want to do when you are done with instructions
 	    );
