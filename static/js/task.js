@@ -190,7 +190,18 @@ while (material_count < materials.length) {
 		curr_material = 0;
 	}
 }
-materials = _.shuffle(_.shuffle(_.shuffle(materials)));
+var order_ok = false;
+while (order_ok == false) {
+	materials = _.shuffle(materials);
+	var count = 0;
+	for (var i = 0; i < 4; ++i) {
+		count += materials[i][5]
+	}
+	if (count != 4 && count != 8) {
+		order_ok = true;
+	}
+}
+
 
 materials.push(practice_materials[0]);
 materials.reverse();
