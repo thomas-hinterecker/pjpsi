@@ -1,19 +1,22 @@
 <?php
 
+use phpbrowscap\Browscap;
+
 class Experiment {
 
     function beforeRoute ($f3, $params) {
         if (strstr($params[0], 'error') == false && strstr($params[0], 'complete') == false) {
-            // if uniqueId is set, check whether uniqueId already exists in the database. If so, then load error.html
-            if (isset($params['uniqueId'])) {
-                $uniqueId = $params['uniqueId'];
+            // if prolificid is set, check whether prolificid already exists in the database. If so, then load error.html
+            if (isset($params['prolificid'])) {
+                $prolificid = $params['prolificid'];
                 $result = $f3->get('DB')->exec(
-                    'SELECT count(1) AS `exists`, `status`, `cond`, `counterbalance` FROM data WHERE uniqueid=?', 
-                    $uniqueId
+                    'SELECT count(1) AS `exists`, `id`, `status`, `condition`, `counterbalance` FROM data WHERE prolificid=?', 
+                    $prolificid
                 );
                 if ((boolean) $result[0]['exists'] == true) {
                     $f3->set('subject.exists', true);
-                    $f3->set('subject.cond', (int) $result[0]['cond']);
+                    $f3->set('subject.id', (int) $result[0]['id']);
+                    $f3->set('subject.condition', (int) $result[0]['condition']);
                     $f3->set('subject.counterbalance', (int) $result[0]['counterbalance']);
                     $status = (int) $result[0]['status'];
                     
@@ -25,7 +28,7 @@ class Experiment {
                         } else {
                             $errornum = 1000;
                         }
-                        $f3->reroute('@errorpage(@errornum=' . $errornum . ',@uniqueId=' . $uniqueId . ')');
+                        $f3->reroute('@errorpage(@errornum=' . $errornum . ',@prolificid=' . $prolificid . ')');
                     }
 
                 } else {
@@ -36,104 +39,100 @@ class Experiment {
     }
 
     function index ($f3) {
-        $template = new Template;
-        echo $template->render('templates/start.html');
+        echo Template::instance()->render('templates/start.html');
     }
 
     function consent ($f3, $params) {
-        $uniqueId = $params['uniqueId'];
-        $this->_createSubject($f3, $uniqueId);
-    	$f3->set('uniqueId', $uniqueId);
-        $template = new Template;
-        echo $template->render('templates/consent.html');
+        $prolificid = $params['prolificid'];
+        $this->_createSubject($f3, $prolificid);
+    	$f3->set('prolificid', $prolificid);
+        echo Template::instance()->render('templates/consent.html');
     }
 
     function exp ($f3, $params) {
-        $uniqueId = $params['uniqueId'];
-        if (empty($uniqueId) == false && $f3->get('subject.exists') == true) {
-            if ($f3->get('subject.cond') == null && $f3->get('subject.counterbalance') == null) {
-                // cond and counterbalance
-                list($cond, $counterbalance) = $this->_findGroups($f3, $uniqueId);
+        $prolificid = $params['prolificid'];
+        if (empty($prolificid) == false && $f3->get('subject.exists') == true) {
+            if ($f3->get('subject.condition') == null && $f3->get('subject.counterbalance') == null) {
+                // condition and counterbalance
+                $f3->get('DB')->exec("START TRANSACTION");
+                list($condition, $counterbalance) = $this->_findGroups($f3, $prolificid);
                 $f3->get('DB')->exec(
-                    'UPDATE data SET `cond`=:cond, `counterbalance`=:counterbalance, `status`=:status WHERE uniqueid=:id',
+                    'UPDATE data SET `condition`=:condition, `counterbalance`=:counterbalance, `status`=:status WHERE id=:id',
                     array(
-                        ':id' => $uniqueId,
-                        ':cond' => $cond,
+                        ':id' => $f3->get('subject.id'),
+                        ':condition' => $condition,
                         ':counterbalance' => $counterbalance,
                         ':status' => $f3->get('STATUS.ALLOCATED')
                     )
                 );
-            } else {
-                $cond = $f3->get('subject.cond');
-                $counterbalance = $f3->get('subject.counterbalance');
+                $f3->get('DB')->exec("COMMIT");
+                $f3->set('subject.condition', $condition);
+                $f3->set('subject.counterbalance', $counterbalance);                
             }
-    	    $f3->set('uniqueId', $uniqueId);
-            $f3->set('mode', $f3->get('MODE'));
-    	    $f3->set('condition', $cond);
-    	    $f3->set('counterbalance', $counterbalance);
-            $template = new Template;
-            echo $template->render('templates/exp.html');
+    	    $f3->set('subject.prolificid', $prolificid);
+            $f3->set('MODE', $f3->get('MODE'));
+            echo Template::instance()->render('templates/exp.html');
         } else {
-            $f3->reroute('@errorpage(@errornum=1000,@uniqueId=' . $uniqueId . ')');
+            $f3->reroute('@errorpage(@errornum=1000,@prolificid=' . $prolificid . ')');
         }
     }
 
     function complete ($f3, $params) {
-        $uniqueId = $params['uniqueId'];
-        if (empty($uniqueId) == false) {
+        $prolificid = $params['prolificid'];
+        if (empty($prolificid) == false) {
             $result = $f3->get('DB')->exec(
-                'SELECT count(1) AS `exists`, `status` FROM data WHERE uniqueid=?', 
-                $uniqueId
+                'SELECT count(1) AS `exists`, `status` FROM data WHERE prolificid=?', 
+                $prolificid
             );
             if ($f3->get('MODE') == 'debug' || $result[0]['exists'] == true) {
                 if ($f3->get('MODE') == 'debug' 
                     || $result[0]['status'] == $f3->get('STATUS.STARTED')
                     || $result[0]['status'] == $f3->get('STATUS.QUITEARLY')) {
-                    $f3->set('uniqueId', $uniqueId);
+                    $f3->set('prolificid', $prolificid);
 
-                    $this->_updateDate($f3, $uniqueId, date('Y-m-d h:i:s', time()), 'end');
-                    $this->_updateStatus($f3, $uniqueId, $f3->get('STATUS.COMPLETED'));
+                    $this->_updateDate($f3, $prolificid, date('Y-m-d h:i:s', time()), 'end');
+                    $this->_updateStatus($f3, $prolificid, $f3->get('STATUS.COMPLETED'));
                     
-                    $template = new Template;
-                    echo $template->render('templates/complete.html');
+                    $f3->set('completionurl', $f3->get('prolific_completion_url'));
+                    echo Template::instance()->render('templates/complete.html');
                     return;
                 } else {
-                    $f3->reroute('@errorpage(@errornum=1010,@uniqueId=' . $uniqueId . ')');
+                    $f3->reroute('@errorpage(@errornum=1010,@prolificid=' . $prolificid . ')');
                     return;
                 }
             }
         }
-        $f3->reroute('@errorpage(@errornum=1000,@uniqueId=' . $uniqueId . ')');
+        $f3->reroute('@errorpage(@errornum=1000,@prolificid=' . $prolificid . ')');
     }
 
     function inexp ($f3, $params) {
-        if ($f3->get('POST.uniqueId')) {
-            $this->_updateDate($f3, $f3->get('POST.uniqueId'), date('Y-m-d h:i:s', time()));
-            $this->_updateStatus($f3, $f3->get('POST.uniqueId'), $f3->get('STATUS.STARTED'));
+        if ($f3->get('POST.prolificid')) {
+            $this->_updateDate($f3, $f3->get('POST.prolificid'), date('Y-m-d h:i:s', time()));
+            $this->_updateStatus($f3, $f3->get('POST.prolificid'), $f3->get('STATUS.STARTED'));
             echo json_encode(array('status' => 'success'));
         }
     }
 
     function quitter ($f3, $params) {
-        if ($f3->get('POST.uniqueId')) {
-            $this->_updateStatus($f3, $f3->get('POST.uniqueId'), $f3->get('STATUS.QUITEARLY'));
+        if ($f3->get('POST.prolificid')) {
+            $this->_updateStatus($f3, $f3->get('POST.prolificid'), $f3->get('STATUS.QUITEARLY'));
             echo json_encode(array('status' => 'marked as quitter'));
         }
     }
 
     function error ($f3, $params) {
         $f3->set('errornum', $params['errornum']);
-        $f3->set('contact_address', $f3->get('CONFIG')['contact_email_on_error']);
-        if (isset($params['uniqueId'])) {
-            $f3->set('uniqueId', $params['uniqueId']);
+        $f3->set('contact_address', $f3->get('contact_email_on_error'));
+        if (isset($params['prolificid'])) {
+            $f3->set('prolificid', $params['prolificid']);
         }
-        $template = new Template;
-        echo $template->render('templates/error.html');
+        echo Template::instance()->render('templates/error.html');
     }
 
-    function _createSubject ($f3, $uniqueId) {
+    function _createSubject ($f3, $prolificid) {
         // add subject to DB but only if not yet in DB
         if ($f3->get('subject.exists') == false) {
+
             // client info
             if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
                 $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
@@ -141,67 +140,75 @@ class Experiment {
                 $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
             } else {
                 $ipaddress = $_SERVER['REMOTE_ADDR'];
-            }            
-            $useragent = $_SERVER['HTTP_USER_AGENT'];
+            }
+            // browser and platform info
+            if (is_file('php/cache/cache.lock')) {
+                unlink('php/cache/cache.lock');
+            }
+            $browscap = new Browscap('php/cache/');
+            if ($f3->get('update_browscap') == false) {
+                $browscap->doAutoUpdate = false;
+            }
+            $browser = $browscap->getBrowser()->Browser . ' ' . $browscap->getBrowser()->Version;
+            $platform = $browscap->getBrowser()->Platform;
 
             // save
             $f3->get('DB')->exec(
                 'INSERT INTO data 
-                    (`uniqueid`, `ipaddress`, `useragent`, `begin`, `codeversion`, `status`) 
-                    VALUES (:id, :ipaddress, :useragent, :begin, :codeversion, :status)',
+                    (`prolificid`, `ipaddress`, `browser`, `platform`, `begin`, `codeversion`, `status`) 
+                    VALUES (:prolificid, :ipaddress, :browser, :platform, :begin, :codeversion, :status)',
                 array(
-                    ':id' => $uniqueId,
+                    ':prolificid' => $prolificid,
                     ':ipaddress' => $ipaddress,
-                    ':useragent' => $useragent,
+                    ':browser' => $browser,
+                    ':platform' => $platform,
                     ':begin' => date('Y-m-d h:i:s', time()),
-                    ':codeversion' => $f3->get('CONFIG')['experiment_code_version'],
+                    ':codeversion' => $f3->get('experiment_code_version'),
                     ':status' => $f3->get('STATUS.NOT_ACCEPTED')
                 )
             );
         }      
     }
 
-    function _updateDate ($f3, $uniqueId, $date, $which = 'beginexp') {
-        if (strlen($uniqueId) > 0) {
+    function _updateDate ($f3, $prolificid, $date, $which = 'beginexp') {
+        if (strlen($prolificid) > 0) {
             $f3->get('DB')->exec(
-                'UPDATE data SET ' . $which . '=:date WHERE uniqueid=:id',
+                'UPDATE data SET ' . $which . '=:date WHERE prolificid=:prolificid',
                 array(
-                    ':id' => $uniqueId,
+                    ':prolificid' => $prolificid,
                     ':date' => $date
                 )
             );
         }
     }
 
-    function _updateStatus ($f3, $uniqueId, $status) {
-        if (strlen($uniqueId) > 0) {
+    function _updateStatus ($f3, $prolificid, $status) {
+        if (strlen($prolificid) > 0) {
             $f3->get('DB')->exec(
-                'UPDATE data SET status=:status WHERE uniqueid=:id',
+                'UPDATE data SET status=:status WHERE prolificid=:prolificid',
                 array(
-                    ':id' => $uniqueId,
+                    ':prolificid' => $prolificid,
                     ':status' => $status
                 )
             );
         }
     }
 
-    function _findGroups ($f3, $uniqueId) {
-        $conditions = array_fill(0, (int) $f3->get('CONFIG')['num_conds'], 0);
-        $counterbalances = array_fill(0, (int) $f3->get('CONFIG')['num_counters'], 0);
+    function _findGroups ($f3, $prolificid) {
+        $conditions = array_fill(0, (int) $f3->get('num_conds'), 0);
+        $counterbalances = array_fill(0, (int) $f3->get('num_counters'), 0);
 
         // get the already used conds and balances
         $result = $f3->get('DB')->exec(
-            'SELECT `cond`, `counterbalance`, `end`, `begin` FROM data WHERE uniqueid!=:id && `status`!=:status', 
+            'SELECT `condition`, `counterbalance` FROM data WHERE prolificid!=:id && `status`!=:status1 && `status`!=:status2', 
             array(
-                ':id' => $uniqueId,
-                ':status' => $f3->get('STATUS.QUITEARLY')
+                ':id' => $prolificid,
+                ':status1' => $f3->get('STATUS.NOT_ACCEPTED'),
+                ':status2' => $f3->get('STATUS.QUITEARLY')
             )
         );
         foreach ($result as $row) {
-            /*if ($row['end'] == null && strtotime($row['begin']) <= (time() - $f3->get('CONFIG')['dismiss_after'])) {
-                continue;
-            }*/
-            $conditions[$row['cond']]++;
+            $conditions[$row['condition']]++;
             $counterbalances[$row['counterbalance']]++;
         }
 

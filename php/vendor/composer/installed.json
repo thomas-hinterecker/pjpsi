@@ -1,0 +1,92 @@
+[
+    {
+        "name": "bcosca/fatfree",
+        "version": "3.4.0",
+        "version_normalized": "3.4.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/bcosca/fatfree.git",
+            "reference": "079e43ba76b960269a5e6410f582485eb9e6c851"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/bcosca/fatfree/zipball/079e43ba76b960269a5e6410f582485eb9e6c851",
+            "reference": "079e43ba76b960269a5e6410f582485eb9e6c851",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.6"
+        },
+        "time": "2015-01-01 12:12:48",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "lib/base.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-3.0"
+        ],
+        "description": "A powerful yet easy-to-use PHP micro-framework designed to help you build dynamic and robust Web applications - fast!",
+        "homepage": "http://fatfreeframework.com/"
+    },
+    {
+        "name": "browscap/browscap-php",
+        "version": "2.0.4",
+        "version_normalized": "2.0.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/browscap/browscap-php.git",
+            "reference": "4819a25d68edb3658caf70574c4a39078b68ee49"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/browscap/browscap-php/zipball/4819a25d68edb3658caf70574c4a39078b68ee49",
+            "reference": "4819a25d68edb3658caf70574c4a39078b68ee49",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "*"
+        },
+        "time": "2014-10-09 07:43:37",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "phpbrowscap": "src/",
+                "phpbrowscapTest": "tests/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Jonathan Stoppani",
+                "email": "jonathan.stoppani@gmail.com"
+            },
+            {
+                "name": "Thomas Mueller",
+                "email": "t_mueller_stolzenhain@yahoo.de"
+            },
+            {
+                "name": "James Titcumb",
+                "email": "james@asgrim.com"
+            }
+        ],
+        "description": "Standalone replacement for php's native get_browser() function",
+        "homepage": "https://github.com/browscap/browscap-php",
+        "keywords": [
+            "browser",
+            "capabilities",
+            "get_browser",
+            "user agent"
+        ]
+    }
+]

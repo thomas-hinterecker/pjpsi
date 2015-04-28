@@ -21,16 +21,17 @@
 
 		<script type="text/javascript">
 			// These fields provided by the Server
-			var uniqueId = "{{ @uniqueId }}";  // a unique string identifying the worker/task
+			//var id = "{{ @subject.id }}";  // a unique string identifying the worker/task
+			var prolificid = "{{ @subject.prolificid }}";  // a unique string identifying the worker/task
 			var adServerLoc = "{{ @BASE }}";  // base path of the experiment 
-			var mode = "{{ @mode }}";  // base path of the experiment 
-			var condition = "{{ @condition }}"; // the condition number
-			var counterbalance = "{{ @counterbalance }}"; // a number indexing counterbalancing conditions
+			var mode = "{{ @mode }}";  // mode
+			var condition = "{{ @subject.condition }}"; // the condition number
+			var counterbalance = "{{ @subject.counterbalance }}"; // a number indexing counterbalancing conditions
 		</script>
 				
 		<!-- utils.js and psiturk.js provide the basic psiturk functionality -->
 		<script src="{{ @BASE }}/static/js/utils.js" type="text/javascript"> </script>
-		<script src="{{ @BASE }}/static/js/psiturk.js" type="text/javascript"> </script>
+		<script src="{{ @BASE }}/static/js/pjpsi.js" type="text/javascript"> </script>
 		<script src="{{ @BASE }}/static/js/jquery.nouislider.all.min.js" type="text/javascript"> </script>
 
 		<!-- task.js is where you experiment code actually lives 

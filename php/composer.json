@@ -1,0 +1,15 @@
+{
+    "name": "thomas/pjpsi",
+    "description": "PJPsi",
+    "require": {
+        "bcosca/fatfree": "~3.4",
+        "browscap/browscap-php": "~2.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas Hinterecker",
+            "email": "t.hinterecker@gmail.com"
+        }
+    ]
+}

@@ -5,7 +5,7 @@
  */
 
 // Initalize psiturk object
-var psiTurk = new PsiTurk(uniqueId, adServerLoc, mode);
+var psiTurk = new PsiTurk(prolificid, adServerLoc, mode);
 
 var mycondition = condition;  // these two variables are passed by the psiturk server process
 var mycounterbalance = counterbalance;  // they tell you which condition you have been assigned to
@@ -31,7 +31,7 @@ function not () {
 
 var practice_materials = [
 	[
-		13,
+		9,
 		'The human race will be able to generate sustainable energy by nuclear fusion within the next 20 years', 
 		'energy will become drastically more expensive by then', 
 		'The human race will ' + not() + ' be able to generate sustainable energy by nuclear fusion within the next 20 years', 
@@ -71,29 +71,29 @@ var materials = [
 		'Intellectual property law in the US will ' + not() + ' be updated to a reflect advances in technology by the year 2040', 
 		'Russia will ' + not() + ' become the world center for software development by 2040'
 	],
-	[
+	/*[
 		3,
 		'A nuclear weapon will be used in a terrorist attack in the next decade', 
 		'there will be a substantial decrease in terrorist activity in the next 10 years', 
 		'A nuclear weapon will ' + not() + ' be used in a terrorist attack in the next decade', 
 		'there will ' + not() + ' be a substantial decrease in terrorist activity in the next 10 years'
-	],
+	],*/
 	[
-		4,
+		3,
 		'The United States adopts an open border policy of universal acceptance', 
 		'English is legally declared the official language of the United States', 
 		'The United States does ' + not() + ' adopt an open border policy of universal acceptance', 
 		'English is ' + not() + ' legally declared the official language of the United States'
 	],
-	[
+	/*[
 		5,
 		' Greece will make a full economic recovery in the next 10 years', 
 		'Greece will be forced to leave the EU in the next 10 years', 
 		' Greece will ' + not() + ' make a full economic recovery in the next 10 years', 
 		'Greece will ' + not() + ' be forced to leave the EU in the next 10 years'
-	],
+	],*/
 	[
-		6,
+		4,
 		'Scientists will discover a cure for Parkinson\'s disease in 10 years', 
 		'the number of patients who suffer from Parkinson\'s disease will triple by 2050', 
 		'Scientists will ' + not() + ' discover a cure for Parkinson\'s disease in 10 years', 
@@ -107,42 +107,42 @@ var materials = [
 		'Ford will ' + not() + ' go bankrupt before the end of 2017'
 	],*/
 	[
-		7,
+		5,
 		'A new illegal but synthetic drug becomes popular in the USA over the next two years', 
 		'the movement to decriminalize drugs doubles its numbers by 2017', 
 		'A new illegal but synthetic drug will ' + not() + ' become popular in the USA over the next two years', 
 		'the movement to decriminalize drugs will ' + not() + ' double its numbers by 2017'
 	],
 	[
-		8,
+		6,
 		'3-dimensional graphics will be required to contain explicit markers to indicate their unreal nature by 2020', 
 		'competitive video game playing will achieve mainstream acceptance by 2020', 
 		'3-dimensional graphics will ' + not() + ' be required to contain explicit markers to indicate their unreal nature by 2020', 
 		'competitive video game playing will ' + not() + ' achieve mainstream acceptance by 2020'
 	],
 	[
-		9,
+		7,
 		'The Supreme Court rules on the constitutionality of gay marriage in the next 5 years', 
 		'a gay person will be elected as president in the next 50 years', 
 		'The Supreme Court will ' + not() + ' rule on the constitutionality of gay marriage in the next 5 years', 
 		'a gay person will ' + not() + ' be elected as president in the next 50 years'
 	],
-	[
+	/*[
 		10,
 		'In less than 15 years, millions of people will live past 100', 
 		'advances in genetics will end the shortage of replacement organs in the next 15 years', 
 		'In less than 15 years, millions of people will ' + not() + ' live past 100', 
 		'advances in genetics will ' + not() + ' end the shortage of replacement organs in the next 15 years'
-	],
-	[
+	],*/
+	/*[
 		11,
 		'Space tourism will achieve widespread popularity in the next 50 years', 
 		'advances in material science will lead to the development of anti-gravity materials in the next 50 years', 
 		'Space tourism will ' + not() + ' achieve widespread popularity in the next 50 years', 
 		'advances in material science will ' + not() + ' lead to the development of anti-gravity materials in the next 50 years'
-	],
+	],*/
 	[
-		12,
+		8,
 		'Intelligent alien life is found outside the solar system in the next 10 years', 
 		'world governments dedicate more resources to contacting extra-terrestrials', 
 		'Intelligent alien life is ' + not() + ' found outside the solar system in the next 10 years', 
@@ -167,7 +167,7 @@ var task_num = materials.length;
 
 // balancing
 var curr_material = mycounterbalance % task_num;
-versions = [6, 4, 1, 1];
+versions = [4, 4];
 var material_count = 0;
 var version_count = 0;
 var curr_version = -1;
@@ -178,7 +178,7 @@ while (material_count < materials.length) {
 			curr_version = version_count;
 		}
 		++version_count;
-		if (version_count > 3) {
+		if (version_count > 1) {
 			version_count = 0;
 		}
 	}
@@ -190,7 +190,7 @@ while (material_count < materials.length) {
 		curr_material = 0;
 	}
 }
-materials = _.shuffle(materials);
+materials = _.shuffle(_.shuffle(_.shuffle(materials)));
 
 materials.push(practice_materials[0]);
 materials.reverse();
@@ -276,7 +276,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		$('#query').html(
 			'<div id="step2">'
 				+ '<p>'
-				+ '<b>What are the chances out of 100 that each of the following assertions (1 to 6) is true?</b>'
+				+ '<b>What are the chances out of 100 that each of the following assertions (1 to 4) is true?</b>'
 				+ '<br /><br />Choose a number from 0 (no chance at all) to 100 (completely certain) for each assertion by using the sliders.'
 				+ ' If you cannot see a complete page on your system, please scroll down to the rest of the page.'
 				+ '</p>'
@@ -287,7 +287,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				+ '</button></center></div><div class="col-xs-2"></div>'
 			+' </div>'
 		);
-		create_sliders(inference);
+		create_sliders(inference, 'jpd');
 		$(".response").click(
 			function () {
 				response = $(this).attr('value');
@@ -295,7 +295,88 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				var slider_modified = true;
 				if (mode != 'debug') {
 					_.each(
-						["a-and-b", "na-and-b", "a-and-nb", "na-and-nb", "a-or-b-i", , "a-or-b-e"], 
+						["a-and-b", "na-and-b", "a-and-nb", "na-and-nb"], 
+						function (item) {
+							if ($('#' + item + '-value-modified').val() == "0") {
+								slider_modified = false;
+								return;
+							}
+						}
+					);
+				}
+
+				if (response.length>0 && slider_modified == true) {
+					//listening = false;
+					var hit = false;
+					var rt = new Date().getTime() - timeon;
+
+					var phase = "TEST_JPD";
+					if (inference[0] > task_num) {
+						phase = "PRACTICE_JPD";
+					}
+
+					psiTurk.recordTrialData(
+						{
+							'phase':phase,
+							'response':response,
+							'hit':hit,
+							'rt':rt,
+							'material':inference[0],
+							'version':inference[5],
+							"a-and-b":parseInt($('#a-and-b-value').html()), 
+							"na-and-b":parseInt($('#na-and-b-value').html()), 
+							"a-and-nb":parseInt($('#a-and-nb-value').html()), 
+							"na-and-nb":parseInt($('#na-and-nb-value').html()), 
+						}
+		            );
+					step3(inference);
+				} else {
+					alert(
+						"Please set a value for each slider."
+						+ "\n\nIf you want to set a slider to 50%, set the slider to any value first and then back to 50%."
+					);
+				}
+			}
+		);
+	};
+
+	var step3 = function(inference) {
+		timeon = new Date().getTime();
+		//listening = true;
+		$('#query').html(
+			'<div id="step2">'
+				+ '<p>'
+				+ '<b>What are the chances out of 100 that each of the following assertions (1 to 2) is true?</b>'
+				+ '<br /><br />Choose a number from 0 (no chance at all) to 100 (completely certain) for each assertion by using the sliders.'
+				+ ' If you cannot see a complete page on your system, please scroll down to the rest of the page.'
+				+ '</p>'
+				+ '<div id="sliders"></div>'
+				+ '<div class="col-xs-2"></div><div class="col-xs-8">'
+				+ '<center><button type="button" value="continue" class="btn btn-primary btn-lg btn-estimates response">'
+					+ 'Continue <span class="glyphicon glyphicon-arrow-right"></span>'
+				+ '</button></center></div><div class="col-xs-2"></div>'
+			+' </div>'
+		);
+		create_sliders(inference, 'inference');
+		$(".response").click(
+			function () {
+				response = $(this).attr('value');
+
+				var pc = []
+				if (inference[5] == 1) {
+					pc = ["a-or-b-i", "p-a-and-b"];
+				} else if (inference[5] == 2) {
+					pc = ["a-or-b-e", "p-a-and-b"];
+				} else if (inference[5] == 3) {
+					pc = ["a-or-b-e", "a-and-i"];
+				} else if (inference[5] == 4) {
+					pc = ["a-or-b-i", "a-or-b-e"];
+				}
+
+				var slider_modified = true;
+				if (mode != 'debug') {
+					_.each(
+						[pc[0], pc[1]], 
 						function (item) {
 							if ($('#' + item + '-value-modified').val() == "0") {
 								slider_modified = false;
@@ -323,12 +404,8 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 							'rt':rt,
 							'material':inference[0],
 							'version':inference[5],
-							"a-and-b":parseInt($('#a-and-b-value').html()), 
-							"na-and-b":parseInt($('#na-and-b-value').html()), 
-							"a-and-nb":parseInt($('#a-and-nb-value').html()), 
-							"na-and-nb":parseInt($('#na-and-nb-value').html()), 
-							"a-or-b-i":parseInt($('#a-or-b-i-value').html()),
-							"a-or-b-e":parseInt($('#a-or-b-e-value').html()),
+							'premise':parseInt($('#' + pc[0] + '-value').html()), 
+							'conclusion':parseInt($('#' + pc[1] + '-value').html()),
 						}
 		            );
 					step1();
@@ -342,17 +419,26 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		);
 	};
 	
-	var create_sliders = function (inference) {
+	var create_sliders = function (inference, which) {
 		var range_all_sliders = {
 			'min': [   0 ], '10%': [  10 ], '20%': [  20 ], '30%': [  30 ], '40%': [  40 ], '50%': [  50 ], '60%': [  60 ], '70%': [  70 ], '80%': [  80 ], '90%': [  90 ], 'max': [ 100 ]
 		};
 		var slider_count = 1;
-		var slider_keys = _.shuffle(["a-and-b", "na-and-b", "a-and-nb", "na-and-nb"]);
-		var disjunctions = _.shuffle(["a-or-b-i", "a-or-b-e"]);
-		slider_keys.push(disjunctions[0]);
-		slider_keys.push(disjunctions[1]);
+		if (which == 'jpd') {
+			var slider_keys = ["a-and-b", "na-and-b", "a-and-nb", "na-and-nb"];
+		} else {
+			if (inference[5] == 1) {
+				var slider_keys = ["p-a-and-b", "a-or-b-i"];
+			} else if (inference[5] == 2) {
+				var slider_keys = ["p-a-and-b", "a-or-b-e"];
+			} else if (inference[5] == 3) {
+				var slider_keys = ["a-or-b-i", "a-or-b-e"];
+			} else if (inference[5] == 4) {
+				var slider_keys = ["a-or-b-e", "a-or-b-i"];
+			}
+		}
 		_.each(
-			slider_keys, 
+			_.shuffle(slider_keys), 
 			function (id) {
 				$("#sliders").append(
 					'<div class="text-and-slider">' 
@@ -446,14 +532,18 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	};
 
 	var get_assertion = function (inference, which) {
-		if (which == "a-or-b-i" || which == "a-or-b-e") {
+		if (inference[0] == task_num + 1 && which == "a-or-b-i") {
+			return 'IF ' + lowercaseFirstLetter(inference[1]) + ' THEN ' + inference[2] + '.';
+		} else if (which == "a-or-b-i" || which == "a-or-b-e") {
 			var type = 1;
 			if (which == "a-or-b-e") {
 				type = 2;
 			}
 			return get_disjunction(inference[1], inference[2], type);
-		} else { // it is a conjunction
+		} else if (which == "p-a-and-b") { // it is a conjunction
 			return 'It is possible that ' + lowercaseFirstLetter(get_conjunction(inference, which));
+		} else { // it is a conjunction
+			return get_conjunction(inference, which);
 		}
 	};
 

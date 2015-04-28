@@ -71,7 +71,7 @@
 			                <p class="questiontext">
 			                Enter your <b>Prolific ID</b> in the field below:<br />(It can be found when going to your account info)
 			                </p>
-			                <input id="uniqueId" name="uniqueId" type="string" min="" style="height:30px; width:150px" />
+			                <input id="prolificid" name="prolificid" type="string" min="" style="height:30px; width:150px" />
 			            </div>
 			            <br />
 					    <p>
@@ -83,12 +83,12 @@
 								if (isTouchDevice != null) {
 									alert("You can't do this study on a mobile device.");
 								} else {
-									var uniqueId = $('#uniqueId').val();
-									if (uniqueId == '') {
+									var prolificid = $('#prolificid').val();
+									if (prolificid == '') {
 										alert("Please fill in your Prolific ID!");
 										return;
 									} else {
-							    		window.location.href = '{{ @BASE }}/consent/' + uniqueId;
+							    		window.location.href = '{{ @BASE }}/consent/' + prolificid;
 							    		return;
 							    	}
 						    	}

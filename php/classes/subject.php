@@ -3,11 +3,11 @@
 class Subject {
 
     function get ($f3, $params) {
-        $uniqueId = $params['uniqueId'];
-        if (empty($uniqueId) == false) {
+        $prolificid = $params['prolificid'];
+        if (empty($prolificid) == false) {
         	$result = $f3->get('DB')->exec(
-        	   'SELECT `uniqueid`, `cond`, `counterbalance` FROM data WHERE uniqueid=?',
-        		$uniqueId
+        	   'SELECT `prolificid`, `condition`, `counterbalance` FROM data WHERE prolificid=?',
+        		$prolificid
         	);
 
             Header('Content-Type: application/json; charset=UTF8');
@@ -21,15 +21,15 @@ class Subject {
 
     function put ($f3, $params) {
         $data = str_replace(array('model=', '&_method=PUT'), '', urldecode(file_get_contents('php://input')));
-        $this->_updateSubject($f3, $params['uniqueId'], $data);
+        $this->_updateSubject($f3, $params['prolificid'], $data);
     }
 
-    function _updateSubject ($f3, $uniqueId, $data) {
-        if (empty($uniqueId) == false) {
+    function _updateSubject ($f3, $prolificid, $data) {
+        if (empty($prolificid) == false) {
             $f3->get('DB')->exec(
-                'UPDATE data SET datastring=:newdata WHERE uniqueid=:id',
+                'UPDATE data SET datastring=:newdata WHERE prolificid=:id',
                 array(
-                    ':id' => $uniqueId,
+                    ':id' => $prolificid,
                     ':newdata' => $data
                 )
             );
@@ -40,12 +40,12 @@ class Subject {
     }
 
     function credit ($f3, $params) {
-        $uniqueId = $params['uniqueId'];
-        if (empty($uniqueId) == false) {
+        $prolificid = $params['prolificid'];
+        if (empty($prolificid) == false) {
             $f3->get('DB')->exec(
-                'UPDATE data SET status=:status WHERE uniqueid=:id',
+                'UPDATE data SET status=:status WHERE prolificid=:id',
                 array(
-                    ':id' => $uniqueId,
+                    ':id' => $prolificid,
                     ':status' => $f3->get('STATUS.CREDITED')
                 )
             );

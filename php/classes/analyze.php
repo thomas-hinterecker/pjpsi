@@ -3,7 +3,7 @@
 class Analyze {
 
     function analyzeData ($f3, $params) {
-        if ($params['key'] == $f3->get('CONFIG')['analyze_key']) {
+        if ($params['key'] == $f3->get('analyze_key')) {
             //echo '<pre>';
 
             $result = $f3->get('DB')->exec('SELECT * FROM data ORDER BY end ASC');
@@ -14,7 +14,7 @@ class Analyze {
             
             $exlude = array();
             foreach ($result as $row) {
-                if (in_array($row['status'], $statuses) && false == in_array($row['uniqueid'], $exlude)) {
+                if (in_array($row['status'], $statuses) && false == in_array($row['prolificid'], $exlude)) {
                     array_push($data, json_decode($row['datastring'], true));
                 }
             }
@@ -23,12 +23,12 @@ class Analyze {
             $count = 0;
             foreach ($data as $subject) {
                 $subjects[$count] = array(
-                    'uniqueid' => '',
+                    'prolificid' => '',
                     'materials' => array(),
                     'postquestionnaire' => array()
                 );
                 foreach ($subject['data'] as $trial) {
-                    $subjects[$count]['uniqueid'] = $trial['uniqueid'];
+                    $subjects[$count]['prolificid'] = $trial['prolificid'];
 
                     $phase = strtolower($trial['trialdata']['phase']);
 
@@ -44,15 +44,19 @@ class Analyze {
                             'estimates' => array()
                         );
                     }
-
-                    if (strstr($phase, 'test_likelihoods')) {
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates'] = array(
+                     if (strstr($phase, 'test_jpd')) {
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['jpd_estimates'] = array(
                             'a-and-b' => $trial['trialdata']['a-and-b'],
                             'na-and-b' => $trial['trialdata']['na-and-b'],
                             'a-and-nb' => $trial['trialdata']['a-and-nb'],
                             'na-and-nb' => $trial['trialdata']['na-and-nb'],
-                            'a-or-b-i' => $trial['trialdata']['a-or-b-i'],
-                            'a-or-b-e' => $trial['trialdata']['a-or-b-e'],
+                            'rt' => $trial['trialdata']['rt'],
+                        );
+                    }
+                    if (strstr($phase, 'test_likelihoods')) {
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['pc_estimates'] = array(
+                            'premise' => $trial['trialdata']['premise'],
+                            'conclusion' => $trial['trialdata']['conclusion'],
                             'rt' => $trial['trialdata']['rt'],
                         );
                     }
@@ -62,16 +66,19 @@ class Analyze {
                 ++$count;
             }
 
-            echo "ID;material;version;response;rt;a-and-b;na-and-b;a-and-nb;na-and-nb;a-or-b-i;a-or-b-e;rt_estimates<br />";
+            echo "ID;material;version;response;rt;a-and-b;na-and-b;a-and-nb;na-and-nb;rt_jpd;premise;conclusion;rt_pc<br />";
             foreach ($subjects as $subject) {
                 foreach ($subject['materials'] as $key => $material) {
-                    echo $subject['uniqueid'] . ";"
+                    echo $subject['prolificid'] . ";"
                         . $key . ";"
                         . $material['version'] . ";"
                         . $material['response'] . ";"
                         . $material['rt'] . ";"
                     ;
-                    foreach ($material['estimates'] as $estimate) {
+                    foreach ($material['jpd_estimates'] as $estimate) {
+                        echo $estimate . ";";
+                    }
+                    foreach ($material['pc_estimates'] as $estimate) {
                         echo $estimate . ";";
                     }
                     echo "<br />";
@@ -79,9 +86,9 @@ class Analyze {
 
             }
             echo "<br />";
-            echo "ID;age;language;howtoimprove;logic_course;engagement;difficulty;sex<br />";
+            echo "ID;howtoimprove;logic_course;engagement;difficulty<br />";
             foreach ($subjects as $subject) {
-                echo $subject['uniqueid'] . ";";
+                echo $subject['prolificid'] . ";";
                 foreach ($subject['postquestionnaire'] as $data) {
                     echo $data . ";";
                 }
@@ -92,7 +99,7 @@ class Analyze {
     }
 
     function analyzeBalancing ($f3, $params) {
-        if ($params['key'] == $f3->get('CONFIG')['analyze_key']) {
+        if ($params['key'] == $f3->get('analyze_key')) {
             echo '<pre>';
 
             $result = $f3->get('DB')->exec('SELECT * FROM data');
@@ -103,13 +110,13 @@ class Analyze {
             
             $exlude = array();
             foreach ($result as $row) {
-                if (in_array($row['status'], $statuses) && false == in_array($row['uniqueid'], $exlude)) {
+                if (in_array($row['status'], $statuses) && false == in_array($row['prolificid'], $exlude)) {
                     array_push($data, json_decode($row['datastring'], true));
                 }
             }
 
             $materials_verions = array();
-            $versions = array('1' => 0, '2' => 0, '3' => 0, '4' => 0);
+            $versions = array('1' => 0, '2' => 0);
 
             $subjects = array();
             $count = 0;
@@ -118,8 +125,10 @@ class Analyze {
                     'phases' => array(
                         'instructions' => 0,
                         'practice_inference' => 0,
+                        'practice_jpd' => 0,
                         'practice_likelihoods' => 0,
                         'test_inference' => 0,
+                        'test_jpd' => 0,
                         'test_likelihoods' => 0,
                         'postquestionnaire' => 0
                     ),
@@ -143,11 +152,7 @@ class Analyze {
 
                 // check versions
                 foreach ($subjects[$count]['versions'] as $version => $num) {
-                    if (($version == 1 && $num != 6)
-                        || ($version == 2 && $num != 4)
-                        || ($version == 3 && $num != 1)
-                        || ($version == 4 && $num != 1)
-                        ) {
+                    if (($version == 1 && $num != 4) || ($version == 2 && $num != 4)) {
                             echo $version . ' VERSION ERROR!!<br />';
                     }
                 }
@@ -160,11 +165,7 @@ class Analyze {
 
             /*foreach ($materials_verions as $material => $versions) {
                 foreach ($versions as $version => $num) {
-                    if (($version == 1 && $num != 8)
-                        || ($version == 2 && $num != 4)
-                        || ($version == 3 && $num != 2)
-                        || ($version == 4 && $num != 2)
-                        ) {
+                    if (($version == 1 && $num != 8) || ($version == 2 && $num != 4)) {
                             echo 'MATERIAL VERSION ERROR!!<br />';
                     }
                 }
