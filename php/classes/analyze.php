@@ -98,6 +98,77 @@ class Analyze {
         }
     }
 
+    function analyzeData2 ($f3, $params) {
+        if ($params['key'] == $f3->get('analyze_key')) {
+            echo '<pre>';
+
+            $result = $f3->get('DB')->exec('SELECT * FROM data ORDER BY end ASC');
+
+            $data = array();
+
+            $statuses = array($f3->get('STATUS.COMPLETED'), $f3->get('STATUS.SUBMITTED'), $f3->get('STATUS.CREDITED')); // completed tasks
+            
+            $exlude = array();
+            foreach ($result as $row) {
+                if (in_array($row['status'], $statuses) && false == in_array($row['prolificid'], $exlude)) {
+                    array_push($data, json_decode($row['datastring'], true));
+                }
+            }
+
+            $subjects = array();
+            $count = 0;
+            foreach ($data as $subject) {
+                $subjects[$count] = array(
+                    'prolificid' => '',
+                    'instructions' => array(),
+                    'events' => array()
+                );
+                foreach ($subject['data'] as $trial) {
+                    $subjects[$count]['prolificid'] = $trial['prolificid'];
+
+                    $phase = strtolower($trial['trialdata']['phase']);
+
+                    if (strstr($phase, 'instructions') 
+                        && ($trial['trialdata']['action'] == 'NextPage' || $trial['trialdata']['action'] == 'FinishInstructions')
+                        ) {
+                        $subjects[$count]['instructions'][] = array(
+                            'template' => $trial['trialdata']['template'],
+                            'view_time' => $trial['trialdata']['viewTime']
+                        );
+                    }
+                }
+                foreach ($subject['eventdata'] as $trial) {
+                    $values = $trial['value'];
+                    if (is_array($values)) {
+                        $values = implode(',', $values);
+                    }
+                    $subjects[$count]['events'][] = array(
+                        'type' => $trial['eventtype'],
+                        'values' => $values,
+                        'timestamp' => $trial['timestamp'],
+                    );                    
+                }
+                ++$count;
+            }
+
+            echo "ID;template;view_time;<br />";
+            foreach ($subjects as $subject) {
+                foreach ($subject['instructions'] as $key => $instruction) {
+                    echo $subject['prolificid'] . ";" . $instruction['template'] . ";" . $instruction['view_time'] . "<br />";
+                }
+
+            }
+            echo "<br />";
+            echo "ID;type;timestamp;values<br />";
+            foreach ($subjects as $subject) {
+                foreach ($subject['events'] as $key => $event) {
+                    echo $subject['prolificid'] . ";" . $event['type'] . ";" . $event['timestamp'] . ";" . $event['values']. "<br />";
+                }
+
+            }
+        }
+    }
+
     function analyzeBalancing ($f3, $params) {
         if ($params['key'] == $f3->get('analyze_key')) {
             echo '<pre>';
