@@ -30,24 +30,46 @@ function not () {
 }
 
 var practice_materials = [
-	[
+	/*[
 		9,
 		'The human race will be able to generate sustainable energy by nuclear fusion within the next 20 years', 
 		'energy will become drastically more expensive by then', 
 		'The human race will ' + not() + ' be able to generate sustainable energy by nuclear fusion within the next 20 years', 
 		'energy will ' + not() + ' become drastically more expensive by then',
-		1
+		5
 	],
-	/*[
-		18,
+	[
+		10,
 		'The United States will enact laws which prescribe the use of water', 
 		'cities in dry and hot areas will overcome their problem of severe water shortages', 
 		'The United States will ' + not() + ' enact laws which prescribe the use of water', 
 		'cities in dry and hot areas will ' + not() + ' overcome their problem of severe water shortages',
-		2
+		6
 	]*/
+	[
+		9,
+		' US companies focus their advertising on the Web next year', 
+		'the New York Times becomes more profitable', 
+		' US companies will ' + not() + ' focus their advertising on the Web next year', 
+		'the New York Times will ' + not() + ' become more profitable'
+	],
+	[
+		10,
+		'In less than 15 years, millions of people will live past 100', 
+		'advances in genetics will end the shortage of replacement organs in the next 15 years', 
+		'In less than 15 years, millions of people will ' + not() + ' live past 100', 
+		'advances in genetics will ' + not() + ' end the shortage of replacement organs in the next 15 years'
+	]
 ];
 var practice_num = practice_materials.length;
+var curr_material = mycounterbalance % practice_num;
+practice_materials[curr_material][5] = 5;
+if (curr_material == 1) {
+	curr_material = 0;
+} else {
+	curr_material = 1;
+}
+practice_materials[curr_material][5] = 6;
 
 var materials = [
 	[
@@ -203,6 +225,8 @@ while (order_ok == false) {
 }
 
 
+practice_materials = _.shuffle(practice_materials);
+materials.push(practice_materials[1]);
 materials.push(practice_materials[0]);
 materials.reverse();
 
@@ -374,7 +398,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				response = $(this).attr('value');
 
 				var pc = []
-				if (inference[5] == 1) {
+				if (inference[5] == 1 || inference[5] >= 5) {
 					pc = ["a-or-b-i", "p-a-and-b"];
 				} else if (inference[5] == 2) {
 					pc = ["a-or-b-e", "p-a-and-b"];
@@ -438,7 +462,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		if (which == 'jpd') {
 			var slider_keys = ["a-and-b", "na-and-b", "a-and-nb", "na-and-nb"];
 		} else {
-			if (inference[5] == 1) {
+			if (inference[5] == 1 || inference[5] >= 5) {
 				var slider_keys = ["p-a-and-b", "a-or-b-i"];
 			} else if (inference[5] == 2) {
 				var slider_keys = ["p-a-and-b", "a-or-b-e"];
@@ -476,7 +500,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 
 				$('#' + id).Link().to($('#' + id + '-value'));	
 				$('#' + id).Link().to(
-					sliderModified, 
+					slider_modified, 
 					null, 
 					{
 						to: parseInt,
@@ -487,7 +511,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		);
 	};
 
-	var sliderModified = function  (value) {
+	var slider_modified = function  (value) {
 		if (value != 50) {
 			var id = $(this).attr('id');
 			$('#' + id + '-value-modified').val(1);
@@ -502,7 +526,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	var show_inference = function(inference) {
 		if (inference[0] <= task_num) {
 			var premise = get_disjunction(inference[1], inference[2], inference[5]);
-		} else if (inference[0] == task_num + 1) {
+		} else {
 			var premise = 'IF ' + lowercaseFirstLetter(inference[1]) + ' THEN ' + inference[2] + '.';
 		}
 		/*} else if (inference[0] == 18) {
@@ -517,6 +541,8 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			var conclusion = get_conclusion(inference);
 		} else if (inference[0] == task_num + 1) {
 			var conclusion = get_conclusion(inference);
+		} else if (inference[0] == task_num + 2) {
+			var conclusion = get_conclusion(inference);
 		}
 		/*} else if (inference[0] == 18) {
 			var conclusion = 'It is possible that ' + lowercaseFirstLetter(get_conjunction(inference, 'na-and-nb'));
@@ -529,8 +555,10 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 
 	var get_conclusion = function (inference) {
 		var conclusion = "";
-		if (inference[5] < 3) {
+		if (inference[5] < 3 || inference[5] == 5) {
 			conclusion =  "It is possible that " + lowercaseFirstLetter(get_conjunction(inference));
+		} else if (inference[5] == 6) {
+			conclusion =  get_conjunction(inference);
 		} else {
 			if (inference[5] == 3) {
 				inference[5] = 4;
@@ -543,7 +571,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	};
 
 	var get_assertion = function (inference, which) {
-		if (inference[0] == task_num + 1 && which == "a-or-b-i") {
+		if (inference[0] >= task_num + 1 && which == "a-or-b-i") {
 			return 'IF ' + lowercaseFirstLetter(inference[1]) + ' THEN ' + inference[2] + '.';
 		} else if (which == "a-or-b-i" || which == "a-or-b-e") {
 			var type = 1;
@@ -551,7 +579,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				type = 2;
 			}
 			return get_disjunction(inference[1], inference[2], type);
-		} else if (which == "p-a-and-b") { // it is a conjunction
+		} else if (which == "p-a-and-b" && inference[5] != 6) { // it is a conjunction
 			return 'It is possible that ' + lowercaseFirstLetter(get_conjunction(inference, which));
 		} else { // it is a conjunction
 			return get_conjunction(inference, which);

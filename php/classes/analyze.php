@@ -32,7 +32,7 @@ class Analyze {
 
                     $phase = strtolower($trial['trialdata']['phase']);
 
-                    if (strstr($phase, 'test_inference')) {
+                    if (strstr($phase, 'inference')) {
                         $response = 0;
                         if ($trial['trialdata']['response'] == "yes") {
                             $response = 1;
@@ -44,7 +44,7 @@ class Analyze {
                             'estimates' => array()
                         );
                     }
-                     if (strstr($phase, 'test_jpd')) {
+                     if (strstr($phase, 'jpd')) {
                         $subjects[$count]['materials'][$trial['trialdata']['material']]['jpd_estimates'] = array(
                             'a-and-b' => $trial['trialdata']['a-and-b'],
                             'na-and-b' => $trial['trialdata']['na-and-b'],
@@ -53,7 +53,7 @@ class Analyze {
                             'rt' => $trial['trialdata']['rt'],
                         );
                     }
-                    if (strstr($phase, 'test_likelihoods')) {
+                    if (strstr($phase, 'likelihoods')) {
                         $subjects[$count]['materials'][$trial['trialdata']['material']]['pc_estimates'] = array(
                             'premise' => $trial['trialdata']['premise'],
                             'conclusion' => $trial['trialdata']['conclusion'],
