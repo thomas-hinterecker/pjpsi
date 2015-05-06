@@ -4,7 +4,7 @@ class Analyze {
 
     function analyzeData ($f3, $params) {
         if ($params['key'] == $f3->get('analyze_key')) {
-            //echo '<pre>';
+            echo '<pre>';
 
             $result = $f3->get('DB')->exec('SELECT * FROM data ORDER BY end ASC');
 
@@ -94,7 +94,7 @@ class Analyze {
                 }
                 echo "<br />";
             }
-            //echo '</pre>';
+            echo '</pre>';
         }
     }
 
@@ -187,7 +187,11 @@ class Analyze {
             }
 
             $materials_verions = array();
-            $versions = array('1' => 0, '2' => 0);
+            $versions = array(
+                'Total' => array('1' => 0, '2' => 0, '3' => 0, '4' => 0),
+                'Decr' => array('1' => 0, '2' => 0, '3' => 0, '4' => 0),
+                'Incr' => array('1' => 0, '2' => 0, '3' => 0, '4' => 0)
+            );
 
             $subjects = array();
             $count = 0;
@@ -211,10 +215,15 @@ class Analyze {
                     $subjects[$count]['phases'][$phase]++;
 
                     if (strstr($phase, 'test_inference')) {
-                        $subjects[$count]['versions'][$trial['trialdata']['version']]++;
+                        $subjects[$count]['versions']['Total'][$trial['trialdata']['version']]++;
+                        if ($trial['trialdata']['material'] <= 6) {
+                            $subjects[$count]['versions']['Decr'][$trial['trialdata']['version']]++;
+                        } else {
+                            $subjects[$count]['versions']['Incr'][$trial['trialdata']['version']]++;
+                        }
 
                         if (false == isset($materials_verions[$trial['trialdata']['material']])) {
-                            $materials_verions[$trial['trialdata']['material']] = $versions;
+                            $materials_verions[$trial['trialdata']['material']] = $versions['Total'];
                         }
                         $materials_verions[$trial['trialdata']['material']][$trial['trialdata']['version']]++;
                     }
@@ -222,9 +231,16 @@ class Analyze {
                 $subjects[$count]['postquestionnaire'] = $subject['questiondata'];
 
                 // check versions
-                foreach ($subjects[$count]['versions'] as $version => $num) {
-                    if (($version == 1 && $num != 4) || ($version == 2 && $num != 4)) {
-                            echo $version . ' VERSION ERROR!!<br />';
+                //var_dump($subjects[$count]['versions']['Decr']);
+                foreach ($subjects[$count]['versions']['Decr'] as $version => $num) {
+                    if (($version == 1 && $num != 2) || ($version == 2 && $num != 2) || ($version == 3 && $num != 1) || ($version == 4 && $num != 1)) {
+                            echo $version . ' DECR VERSION ERROR!!<br />';
+                    }
+                }
+                //var_dump($subjects[$count]['versions']['Incr']);
+                foreach ($subjects[$count]['versions']['Incr'] as $version => $num) {
+                    if (($version == 1 && $num != 2) || ($version == 2 && $num != 2) || ($version == 3 && $num != 1) || ($version == 4 && $num != 1)) {
+                            echo $version . ' INCR VERSION ERROR!!<br />';
                     }
                 }
 

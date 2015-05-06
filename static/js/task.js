@@ -29,47 +29,24 @@ function not () {
 	return "NOT";
 }
 
+material_id = 0;
+material_a = 1;
+material_b = 2;
+material_na = 3;
+material_nb = 4;
+material_version = 5;
+
 var practice_materials = [
-	/*[
-		9,
-		'The human race will be able to generate sustainable energy by nuclear fusion within the next 20 years', 
-		'energy will become drastically more expensive by then', 
-		'The human race will ' + not() + ' be able to generate sustainable energy by nuclear fusion within the next 20 years', 
-		'energy will ' + not() + ' become drastically more expensive by then',
-		5
-	],
 	[
-		10,
-		'The United States will enact laws which prescribe the use of water', 
-		'cities in dry and hot areas will overcome their problem of severe water shortages', 
-		'The United States will ' + not() + ' enact laws which prescribe the use of water', 
-		'cities in dry and hot areas will ' + not() + ' overcome their problem of severe water shortages',
-		6
-	]*/
-	[
-		9,
+		13,
 		' US companies focus their advertising on the Web next year', 
 		'the New York Times becomes more profitable', 
 		' US companies will ' + not() + ' focus their advertising on the Web next year', 
-		'the New York Times will ' + not() + ' become more profitable'
-	],
-	[
-		10,
-		'In less than 15 years, millions of people will live past 100', 
-		'advances in genetics will end the shortage of replacement organs in the next 15 years', 
-		'In less than 15 years, millions of people will ' + not() + ' live past 100', 
-		'advances in genetics will ' + not() + ' end the shortage of replacement organs in the next 15 years'
+		'the New York Times will ' + not() + ' become more profitable',
+		5
 	]
 ];
 var practice_num = practice_materials.length;
-var curr_material = mycounterbalance % practice_num;
-practice_materials[curr_material][5] = 5;
-if (curr_material == 1) {
-	curr_material = 0;
-} else {
-	curr_material = 1;
-}
-practice_materials[curr_material][5] = 6;
 
 var materials = [
 	[
@@ -79,13 +56,6 @@ var materials = [
 		'The United States will ' + not() + ' sign the Kyoto Protocol and commit to reducing CO2 emissions', 
 		'global temperatures will ' + not() + ' reach a theoretical point of no return in the next 100 years'
 	],
-	/*[
-		2,
-		' US companies focus their advertising on the Web next year', 
-		'the New York Times becomes more profitable', 
-		' US companies will ' + not() + ' focus their advertising on the Web next year', 
-		'the New York Times will ' + not() + ' become more profitable'
-	],*/
 	[
 		2,
 		'Intellectual property law in the US will be updated to a reflect advances in technology by the year 2040', 
@@ -93,140 +63,111 @@ var materials = [
 		'Intellectual property law in the US will ' + not() + ' be updated to a reflect advances in technology by the year 2040', 
 		'Russia will ' + not() + ' become the world center for software development by 2040'
 	],
-	/*[
+	[
 		3,
 		'A nuclear weapon will be used in a terrorist attack in the next decade', 
 		'there will be a substantial decrease in terrorist activity in the next 10 years', 
 		'A nuclear weapon will ' + not() + ' be used in a terrorist attack in the next decade', 
 		'there will ' + not() + ' be a substantial decrease in terrorist activity in the next 10 years'
-	],*/
+	],
 	[
-		3,
+		4,
 		'The United States adopts an open border policy of universal acceptance', 
 		'English is legally declared the official language of the United States', 
 		'The United States does ' + not() + ' adopt an open border policy of universal acceptance', 
 		'English is ' + not() + ' legally declared the official language of the United States'
 	],
-	/*[
+	[
 		5,
 		' Greece will make a full economic recovery in the next 10 years', 
 		'Greece will be forced to leave the EU in the next 10 years', 
 		' Greece will ' + not() + ' make a full economic recovery in the next 10 years', 
 		'Greece will ' + not() + ' be forced to leave the EU in the next 10 years'
-	],*/
+	],
 	[
-		4,
+		6,
 		'Scientists will discover a cure for Parkinson\'s disease in 10 years', 
 		'the number of patients who suffer from Parkinson\'s disease will triple by 2050', 
 		'Scientists will ' + not() + ' discover a cure for Parkinson\'s disease in 10 years', 
 		'the number of patients who suffer from Parkinson\'s disease will ' + not() + ' triple by 2050'
 	],
-	/*[
-		8,
-		' Honda will go bankrupt in 2016', 
-		'Ford will go bankrupt before the end of 2017', 
-		' Honda will ' + not() + ' go bankrupt in 2016', 
-		'Ford will ' + not() + ' go bankrupt before the end of 2017'
-	],*/
 	[
-		5,
+		7,
 		'A new illegal but synthetic drug becomes popular in the USA over the next two years', 
 		'the movement to decriminalize drugs doubles its numbers by 2017', 
 		'A new illegal but synthetic drug will ' + not() + ' become popular in the USA over the next two years', 
 		'the movement to decriminalize drugs will ' + not() + ' double its numbers by 2017'
 	],
 	[
-		6,
+		8,
 		'3-dimensional graphics will be required to contain explicit markers to indicate their unreal nature by 2020', 
 		'competitive video game playing will achieve mainstream acceptance by 2020', 
 		'3-dimensional graphics will ' + not() + ' be required to contain explicit markers to indicate their unreal nature by 2020', 
 		'competitive video game playing will ' + not() + ' achieve mainstream acceptance by 2020'
 	],
 	[
-		7,
+		9,
 		'The Supreme Court rules on the constitutionality of gay marriage in the next 5 years', 
 		'a gay person will be elected as president in the next 50 years', 
 		'The Supreme Court will ' + not() + ' rule on the constitutionality of gay marriage in the next 5 years', 
 		'a gay person will ' + not() + ' be elected as president in the next 50 years'
 	],
-	/*[
+	[
 		10,
 		'In less than 15 years, millions of people will live past 100', 
 		'advances in genetics will end the shortage of replacement organs in the next 15 years', 
 		'In less than 15 years, millions of people will ' + not() + ' live past 100', 
 		'advances in genetics will ' + not() + ' end the shortage of replacement organs in the next 15 years'
-	],*/
-	/*[
+	],
+	[
 		11,
 		'Space tourism will achieve widespread popularity in the next 50 years', 
 		'advances in material science will lead to the development of anti-gravity materials in the next 50 years', 
 		'Space tourism will ' + not() + ' achieve widespread popularity in the next 50 years', 
 		'advances in material science will ' + not() + ' lead to the development of anti-gravity materials in the next 50 years'
-	],*/
+	],
 	[
-		8,
+		12,
 		'Intelligent alien life is found outside the solar system in the next 10 years', 
 		'world governments dedicate more resources to contacting extra-terrestrials', 
 		'Intelligent alien life is ' + not() + ' found outside the solar system in the next 10 years', 
 		'world governments will ' + not() + ' dedicate more resources to contacting extra-terrestrials'
 	],
-	/*[
-		15,
-		'The legal drinking age will be lowered in the United States in the next few years', 
-		'The number of traffic accidents goes up in in the next few years', 
-		'The legal drinking age will ' + not() + ' be lowered in the United States in the next few years', 
-		'The number of traffic accidents will ' + not() + ' go up in in the next few years'
-	],
-	[
-		16,
-		'The Islamic State will carry out a terroristic attack in the next months', 
-		'NATO will grant military support to Iraq and help defeating the Islamic State', 
-		'The Islamic State will ' + not() + ' carry out a terroristic attack in the next months', 
-		'NATO will ' + not() + ' grant military support to Iraq and help defeating the Islamic State'
-	],*/
 ];
 var task_num = materials.length;
 
 // balancing
-var curr_material = mycounterbalance % task_num;
-versions = [4, 4];
-var material_count = 0;
-var version_count = 0;
-var curr_version = -1;
-while (material_count < materials.length) {
-	while (curr_version == -1) {
-		if (versions[version_count] > 0) {
-			--versions[version_count];
-			curr_version = version_count;
+var makeBalancing = function (start, current, num, versions) {
+	//console.log(current)
+	var version_count = 0;
+	var version = -1;
+	var counter = start;
+	while (counter < num) {
+		while (version == -1) {
+			if (versions[version_count] > 0) {
+				--versions[version_count];
+				version = version_count;
+			}
+			++version_count;
+			if (version_count > (versions.length - 1)) {
+				version_count = 0;
+			}
 		}
-		++version_count;
-		if (version_count > 1) {
-			version_count = 0;
-		}
-	}
-	materials[curr_material][5] = curr_version + 1;
-	curr_version = -1;
-	++material_count;
-	++curr_material;
-	if (curr_material == materials.length) {
-		curr_material = 0;
+		materials[current][material_version] = version + 1;
+		//console.log(current+" - "+materials[current][material_version])
+		++counter;
+		++current;
+		if (current == num) {
+			current = start;
+		}	
+		version = -1;
 	}
 }
-var order_ok = false;
-while (order_ok == false) {
-	materials = _.shuffle(materials);
-	var count = 0;
-	for (var i = 0; i < 4; ++i) {
-		count += materials[i][5]
-	}
-	if (count != 4 && count != 8) {
-		order_ok = true;
-	}
-}
+var current = mycounterbalance % (materials.length/2);
+makeBalancing(0, current, materials.length/2, [2, 2, 1, 1]);
+makeBalancing(materials.length/2, current+(materials.length/2), materials.length, [2, 2, 1, 1]);
 
-
-practice_materials = _.shuffle(practice_materials);
-materials.push(practice_materials[1]);
+//materials = _.shuffle(materials);
 materials.push(practice_materials[0]);
 materials.reverse();
 
@@ -248,13 +189,13 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	var timeon = false; // time needed to provide estimates of the probabilities
 	    //listening = false;
 
-	var step1 = function() {
+	var trialStep1 = function() {
 		if (inferences.length===0) {
 			finish();
 		}
 		else {
 			inference = inferences.shift();
-			show_inference(inference);
+			showInference(inference);
 			timeon = new Date().getTime();
 			//listening = true;
 			$('#query').html(
@@ -272,40 +213,26 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 					if (response.length>0) {
 						//listening = false;
 						var hit = false;
-						if ((inference[4] == 1 && response == 'yes')
-							|| (inference[4] == 2 && response == 'no')
-							|| (inference[4] == 3 && response == 'no')
-							|| (inference[4] == 4 && response == 'no')) {
-							hit = true;
-						}
 						var rt = new Date().getTime() - timeon;
-
-						var phase = "TEST_INFERENCE";
-						if (inference[0] > task_num) {
-							phase = "PRACTICE_INFERENCE";
-						}
-
 						pjpsi.recordTrialData(
 							{
-								'phase':phase,
+								'phase':getPhase(1, inference),
 								'response':response,
 								'hit':hit,
 								'rt':rt,
-								'material':inference[0],
-								'premise':get_disjunction(inference[1], inference[2], inference[5]),
-								'conclusion':get_conclusion(inference),
-								'version':inference[5]
+								'material':inference[material_id],
+								'version':inference[material_version]
 							}
 			           	);
-						step2(inference);
+						trialStep2(inference);
 					}
 				}
 			);
 		}
 	};
 
-	var step2 = function(inference) {
-		remove_inference();
+	var trialStep2 = function(inference) {
+		removeInference();
 		timeon = new Date().getTime();
 		//listening = true;
 		$('#query').html(
@@ -322,60 +249,38 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				+ '</button></center></div><div class="col-xs-2"></div>'
 			+' </div>'
 		);
-		create_sliders(inference, 'jpd');
+		createSliders(inference, 'jpd');
 		$(".response").click(
 			function () {
 				response = $(this).attr('value');
-
-				var slider_modified = true;
-				if (mode != 'debug') {
-					_.each(
-						["a-and-b", "na-and-b", "a-and-nb", "na-and-nb"], 
-						function (item) {
-							if ($('#' + item + '-value-modified').val() == "0") {
-								slider_modified = false;
-								return;
-							}
-						}
-					);
-				}
-
-				if (response.length>0 && slider_modified == true) {
+				// Check if all slider have been modified
+				if (response.length>0 && checkSliderModified(["a-and-b", "a-and-nb", "na-and-b", "na-and-nb"]) == true) {
 					//listening = false;
 					var hit = false;
 					var rt = new Date().getTime() - timeon;
-
-					var phase = "TEST_JPD";
-					if (inference[0] > task_num) {
-						phase = "PRACTICE_JPD";
-					}
-
 					pjpsi.recordTrialData(
 						{
-							'phase':phase,
+							'phase':getPhase(2, inference),
 							'response':response,
 							'hit':hit,
 							'rt':rt,
-							'material':inference[0],
-							'version':inference[5],
+							'material':inference[material_id],
+							'version':inference[material_version],
 							"a-and-b":parseInt($('#a-and-b-value').html()), 
 							"na-and-b":parseInt($('#na-and-b-value').html()), 
 							"a-and-nb":parseInt($('#a-and-nb-value').html()), 
-							"na-and-nb":parseInt($('#na-and-nb-value').html()), 
+							"na-and-nb":parseInt($('#na-and-nb-value').html())
 						}
 		            );
-					step3(inference);
+					trialStep3(inference);
 				} else {
-					alert(
-						"Please set a value for each slider."
-						+ "\n\nIf you want to set a slider to 50%, set the slider to any value first and then back to 50%."
-					);
+					sliderAlert();
 				}
 			}
 		);
 	};
 
-	var step3 = function(inference) {
+	var trialStep3 = function(inference) {
 		timeon = new Date().getTime();
 		//listening = true;
 		$('#query').html(
@@ -392,97 +297,128 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				+ '</button></center></div><div class="col-xs-2"></div>'
 			+' </div>'
 		);
-		create_sliders(inference, 'inference');
+		createSliders(inference, 'inference');
 		$(".response").click(
 			function () {
 				response = $(this).attr('value');
-
-				var pc = []
-				if (inference[5] == 1 || inference[5] >= 5) {
-					pc = ["a-or-b-i", "p-a-and-b"];
-				} else if (inference[5] == 2) {
-					pc = ["a-or-b-e", "p-a-and-b"];
-				} else if (inference[5] == 3) {
-					pc = ["a-or-b-e", "a-and-i"];
-				} else if (inference[5] == 4) {
-					pc = ["a-or-b-i", "a-or-b-e"];
-				}
-
-				var slider_modified = true;
-				if (mode != 'debug') {
-					_.each(
-						[pc[0], pc[1]], 
-						function (item) {
-							if ($('#' + item + '-value-modified').val() == "0") {
-								slider_modified = false;
-								return;
-							}
-						}
-					);
-				}
-
-				if (response.length>0 && slider_modified == true) {
+				// Get inference shortcuts
+				var pc = getInferenceShortcuts(inference);
+				// Check if all slider have been modified			
+				if (response.length>0 && checkSliderModified(pc) == true) {
 					//listening = false;
 					var hit = false;
 					var rt = new Date().getTime() - timeon;
-
-					var phase = "TEST_LIKELIHOODS";
-					if (inference[0] > task_num) {
-						phase = "PRACTICE_LIKELIHOODS";
-					}
-
 					pjpsi.recordTrialData(
 						{
-							'phase':phase,
+							'phase':getPhase(3, inference),
 							'response':response,
 							'hit':hit,
 							'rt':rt,
-							'material':inference[0],
-							'version':inference[5],
+							'material':inference[material_id],
+							'version':inference[material_version],
 							'premise':parseInt($('#' + pc[0] + '-value').html()), 
-							'conclusion':parseInt($('#' + pc[1] + '-value').html()),
+							'conclusion':parseInt($('#' + pc[1] + '-value').html())
 						}
 		            );
-					step1();
+					trialStep1();
 				} else {
-					alert(
-						"Please set a value for each slider."
-						+ "\n\nIf you want to set a slider to 50%, set the slider to any value first and then back to 50%."
-					);
+					sliderAlert();
 				}
 			}
 		);
 	};
 	
-	var create_sliders = function (inference, which) {
+	var checkSliderModified = function (shortcuts) {
+		if (mode != 'debug') {
+			_.each(
+				shortcuts, 
+				function (item) {
+					if ($('#' + item + '-value-modified').val() == "0") {
+						return false;
+					}
+				}
+			);
+			
+		}
+		return true;
+	};
+
+	var sliderAlert = function () {
+		alert(
+			"Please set a value for each slider."
+			+ "\n\nIf you want to set a slider to 50%, set the slider to any value first and then back to 50%."
+		);		
+	};
+
+	var getPhase = function (step, inference) {
+		var phase = ""
+		switch (step) {
+			case 1:
+				phase = "TEST_INFERENCE";
+				if (inference[material_id] > task_num) {
+					phase = "PRACTICE_INFERENCE";
+				}
+				break;
+			case 2:
+				phase = "TEST_JPD";
+				if (inference[material_id] > task_num) {
+					phase = "PRACTICE_JPD";
+				}
+				break;
+			case 3:
+				phase = "TEST_LIKELIHOODS";
+				if (inference[material_id] > task_num) {
+					phase = "PRACTICE_LIKELIHOODS";
+				}
+				break;
+		}
+		return phase;
+	};
+
+	var getInferenceShortcuts = function (inference) {
+		switch (inference[material_version]) {
+			case 1:
+				return ["a-or-b-e", "a-or-b-i"];
+			case 2:
+				return ["a-or-b-i", "a-or-b-e"];
+			case 3:
+				return ["if-a-then-b", "na-or-b-i"];
+			case 4:
+				return ["a-or-b-i", "if-na-then-b"];
+			case 5:
+				return ["a-or-b-i", "a-and-b"];
+		}
+	};
+
+	var createSliders = function (inference, which) {
+		var sliderModified = function  (value) {
+			if (value != 50) {
+				var id = $(this).attr('id');
+				$('#' + id + '-value-modified').val(1);
+				$('#' + id + '-value-modified-sign').html('');
+			}
+		};
 		var range_all_sliders = {
 			'min': [   0 ], '10%': [  10 ], '20%': [  20 ], '30%': [  30 ], '40%': [  40 ], '50%': [  50 ], '60%': [  60 ], '70%': [  70 ], '80%': [  80 ], '90%': [  90 ], 'max': [ 100 ]
 		};
 		var slider_count = 1;
+		var slider_keys = [];
 		if (which == 'jpd') {
-			var slider_keys = ["a-and-b", "na-and-b", "a-and-nb", "na-and-nb"];
+			slider_keys = ["a-and-b", "na-and-b", "a-and-nb", "na-and-nb"];
 		} else {
-			if (inference[5] == 1 || inference[5] >= 5) {
-				var slider_keys = ["p-a-and-b", "a-or-b-i"];
-			} else if (inference[5] == 2) {
-				var slider_keys = ["p-a-and-b", "a-or-b-e"];
-			} else if (inference[5] == 3) {
-				var slider_keys = ["a-or-b-i", "a-or-b-e"];
-			} else if (inference[5] == 4) {
-				var slider_keys = ["a-or-b-e", "a-or-b-i"];
-			}
+			slider_keys = getInferenceShortcuts(inference);
 		}
 		_.each(
 			_.shuffle(slider_keys), 
-			function (id) {
+			function (shortcut) {
 				$("#sliders").append(
 					'<div class="text-and-slider">' 
-					+ (slider_count++) + '. ' + get_assertion(inference, id)
-					+ '<br /><span id="' + id + '-value" class="slider-value"></span> <span class="slider-value">chance</span> <span id="'  + id + '-value-modified-sign" class="slider-value"> - Slider not modified yet!</span>'
-					+ '<div id="'  + id + '" class="slider"></div><input id="'  + id + '-value-modified" value="0" type="hidden" /><br /><br />'
+					+ (slider_count++) + '. ' + getAssertion(inference, shortcut)
+					+ '<br /><span id="' + shortcut + '-value" class="slider-value"></span> <span class="slider-value">chance</span> <span id="'  + shortcut + '-value-modified-sign" class="slider-value"> - Slider not modified yet!</span>'
+					+ '<div id="'  + shortcut + '" class="slider"></div><input id="'  + shortcut + '-value-modified" value="0" type="hidden" /><br /><br />'
 					+ '</div>'
 				);
-				$('#' + id).noUiSlider({
+				$('#' + shortcut).noUiSlider({
 					start: [ 50 ],
 					range: range_all_sliders,
 					format: wNumb({
@@ -490,17 +426,17 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 						postfix: '%',
 					})
 				});
-				$('#' + id).noUiSlider_pips({
+				$('#' + shortcut).noUiSlider_pips({
 					mode: 'range',
 					density: 2,
 					filter: function (value, type){
 						return 2;
 					}
 				});	
-
-				$('#' + id).Link().to($('#' + id + '-value'));	
-				$('#' + id).Link().to(
-					slider_modified, 
+				// Links
+				$('#' + shortcut).Link().to($('#' + shortcut + '-value'));	
+				$('#' + shortcut).Link().to(
+					sliderModified, 
 					null, 
 					{
 						to: parseInt,
@@ -509,112 +445,78 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				);	
 			}
 		);
+	};	
+	
+	var showInference = function(inference) {
+		d3.select("#inference")
+			.append("div")
+			.attr("id","premise")
+			.text("Premise: " + getPremise(inference));
+		d3.select("#inference")
+			.append("div")
+			.attr("id","conclusion")
+			.text("Conclusion: " + getConclusion(inference));
 	};
 
-	var slider_modified = function  (value) {
-		if (value != 50) {
-			var id = $(this).attr('id');
-			$('#' + id + '-value-modified').val(1);
-			$('#' + id + '-value-modified-sign').html('');
+	var getPremise = function (inference) {
+		var shortcuts = getInferenceShortcuts(inference);
+		return getAssertion(inference, shortcuts[0]);
+	};
+
+	var getConclusion = function (inference) {
+		var shortcuts = getInferenceShortcuts(inference);
+		return getAssertion(inference, shortcuts[1]);
+	};
+
+	var getAssertion = function (inference, which) {
+		switch (which) {
+			case "a-or-b-i":
+				return getDisjunction(inference[material_a], inference[material_b], "I");
+			case "a-or-b-e":
+				return getDisjunction(inference[material_a], inference[material_b], "E");
+			case "na-or-b-i":
+				return getDisjunction(inference[material_na], inference[material_b], "I");				
+			case "if-a-then-b":
+				return getConditional(inference[material_a], inference[material_b]);
+			case "if-na-then-b":
+				return getConditional(inference[material_na], inference[material_b]);
+			case "a-and-b":
+				return getConjunction(inference[material_a], inference[material_b]);
+			case "a-and-nb":
+				return getConjunction(inference[material_a], inference[material_nb]);
+			case "na-and-b":
+				return getConjunction(inference[material_na], inference[material_b]);
+			case "na-and-nb":
+				return getConjunction(inference[material_na], inference[material_nb]);
 		}
+	};
+
+	var getConditional = function (a, b) {
+		return "IF " + lowercaseFirstLetter(a) + " THEN " + lowercaseFirstLetter(b);
+	};
+
+	var getDisjunction = function(a, b, type) {
+		var ending = "";
+		if (type == "I") {
+			ending = "OR both";
+		} else {
+			ending = "BUT not both";
+		}	
+		return a + " OR " + lowercaseFirstLetter(b) + ", " + ending + '.';
+	};
+
+	var getConjunction = function(a, b) {
+		return a + " AND " + lowercaseFirstLetter(b) + '.';
+	};
+
+	var removeInference = function() {
+		d3.select("#premise").remove();
+		d3.select("#conclusion").remove();
 	};
 
 	/*var response_handler = function(e) {
 		if (!listening) return;
 	};*/
-	
-	var show_inference = function(inference) {
-		if (inference[0] <= task_num) {
-			var premise = get_disjunction(inference[1], inference[2], inference[5]);
-		} else {
-			var premise = 'IF ' + lowercaseFirstLetter(inference[1]) + ' THEN ' + inference[2] + '.';
-		}
-		/*} else if (inference[0] == 18) {
-			var premise = '' + inference[1] + ' UNLESS ' + inference[2] + '.';
-		}*/
-		d3.select("#inference")
-			.append("div")
-			.attr("id","premise")
-			.text("Premise: " + premise);
-
-		if (inference[0] <= task_num) {
-			var conclusion = get_conclusion(inference);
-		} else if (inference[0] == task_num + 1) {
-			var conclusion = get_conclusion(inference);
-		} else if (inference[0] == task_num + 2) {
-			var conclusion = get_conclusion(inference);
-		}
-		/*} else if (inference[0] == 18) {
-			var conclusion = 'It is possible that ' + lowercaseFirstLetter(get_conjunction(inference, 'na-and-nb'));
-		}*/	
-		d3.select("#inference")
-			.append("div")
-			.attr("id","conclusion")
-			.text("Conclusion: " + conclusion);
-	};
-
-	var get_conclusion = function (inference) {
-		var conclusion = "";
-		if (inference[5] < 3 || inference[5] == 5) {
-			conclusion =  "It is possible that " + lowercaseFirstLetter(get_conjunction(inference));
-		} else if (inference[5] == 6) {
-			conclusion =  get_conjunction(inference);
-		} else {
-			if (inference[5] == 3) {
-				inference[5] = 4;
-			} else {
-				inference[5] = 3;
-			}
-			conclusion =  get_disjunction(inference[1], inference[2], inference[5]);
-		}
-		return conclusion;
-	};
-
-	var get_assertion = function (inference, which) {
-		if (inference[0] >= task_num + 1 && which == "a-or-b-i") {
-			return 'IF ' + lowercaseFirstLetter(inference[1]) + ' THEN ' + inference[2] + '.';
-		} else if (which == "a-or-b-i" || which == "a-or-b-e") {
-			var type = 1;
-			if (which == "a-or-b-e") {
-				type = 2;
-			}
-			return get_disjunction(inference[1], inference[2], type);
-		} else if (which == "p-a-and-b" && inference[5] != 6) { // it is a conjunction
-			return 'It is possible that ' + lowercaseFirstLetter(get_conjunction(inference, which));
-		} else { // it is a conjunction
-			return get_conjunction(inference, which);
-		}
-	};
-
-	var get_disjunction = function(a, b, type) {
-		return a + " OR " + b + ", " + get_disjunction_ending(type) + '.';
-	};
-
-	var get_disjunction_ending = function (type_of_disjunction) {
-		if (type_of_disjunction == 1 || type_of_disjunction == 3) {
-			return "OR both";
-		} else {
-			return "BUT not both";
-		}
-	};
-
-	var get_conjunction = function(inference, which) {
-		switch (which) {
-			case "na-and-b":
-				return inference[3] + " AND " + inference[2] + '.';
-			case "a-and-nb":
-				return inference[1] + " AND " + inference[4] + '.';
-			case "na-and-nb":
-				return inference[3] + " AND " + inference[4] + '.';
-			default:
-				return inference[1] + " AND " + inference[2] + '.';
-		}
-	};
-
-	var remove_inference = function() {
-		d3.select("#premise").remove();
-		d3.select("#conclusion").remove();
-	};
 
 	var finish = function() {
 	    //$("body").unbind("keydown", response_handler); // Unbind keys
@@ -629,7 +531,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	//$("body").focus().keydown(response_handler); 
 
 	// Start the test
-	step1();
+	trialStep1();
 };
 
 
@@ -681,14 +583,14 @@ var Questionnaire = function() {
 	
 	$("#next").click(function () {
 	    record_responses();
-	    pjpsi.saveData({
-            success: function(){
-                /*pjpsi.computeBonus('compute_bonus', function() { 
-                	pjpsi.completeHIT(); // when finished saving compute bonus, the quit
-                });*/
-                pjpsi.complete(); // when finished saving compute bonus, the quit
-            }, 
-            error: prompt_resubmit});
+	    pjpsi.saveData(
+	    	{
+	            success: function(){
+	                pjpsi.complete();
+	            }, 
+            	error: prompt_resubmit
+        	}
+        );
 	});
     
 	
