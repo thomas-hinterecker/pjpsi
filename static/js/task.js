@@ -167,7 +167,7 @@ var current = mycounterbalance % (materials.length/2);
 makeBalancing(0, current, materials.length/2, [2, 2, 1, 1]);
 makeBalancing(materials.length/2, current+(materials.length/2), materials.length, [2, 2, 1, 1]);
 
-materials = _.shuffle(materials);
+materials = _.shuffle(_.shuffle(materials));
 materials.push(practice_materials[0]);
 materials.reverse();
 
