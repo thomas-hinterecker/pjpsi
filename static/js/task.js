@@ -334,7 +334,6 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			_.each(
 				shortcuts, 
 				function (item) {
-					console.log($('#' + item + '-value-modified').val());
 					if ($('#' + item + '-value-modified').val() == "0") {
 						val = false;
 					}
