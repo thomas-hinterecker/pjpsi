@@ -178,8 +178,6 @@ var PJPsi = function(prolificid, serverLoc, mode) { // serverLoc
 			complete_fn();
 		};
 
-
-
 		/* public interface */
 		self.getIndicator = function() {
 			return {"currently_viewing":{"indexOf":currentscreen, "template":pages[currentscreen]}, "instruction_deck":{"total_pages":instruction_pages.length, "templates":instruction_pages}};
@@ -246,15 +244,6 @@ var PJPsi = function(prolificid, serverLoc, mode) { // serverLoc
 	self.getQuestionData = function() {
 		return taskdata.getQuestionData();	
 	};
-
-	// Add bonus to task data
-	/*self.computeBonus = function(url, callback) {
-		$.ajax(url, {
-                    type: "GET",
-                    data: {prolificid: self.taskdata.id},
-                    success: callback
-                });
-	};*/
 	
 	// Save data to server
 	self.saveData = function(callbacks) {
@@ -264,24 +253,30 @@ var PJPsi = function(prolificid, serverLoc, mode) { // serverLoc
 	self.startTask = function () {
 		self.saveData();
 		
-		$.ajax(serverLoc + "/inexp", {
+		$.ajax(
+			serverLoc + "/inexp", 
+			{
 				type: "POST",
 				data: {prolificid: self.taskdata.id}
-		});
+			}
+		);
 
 		if (self.taskdata.mode != 'debug') {  // don't block people from reloading in debug mode
 			// Provide opt-out 
-			$(window).on("beforeunload", function(){
-				self.saveData();
-				
-				$.ajax(serverLoc + "/quitter", {
-						type: "POST",
-						data: {prolificid: self.taskdata.id}
-				});
-				//var optoutmessage = "By leaving this page, you opt out of the experiment.";
-				//alert(optoutmessage);
-				return "By leaving or reloading this page, you opt out of the experiment. Are you sure you want to leave the experiment?";
-			});
+			$(window).on(
+				"beforeunload", 
+				function() {
+					self.saveData();
+					$.ajax(
+						serverLoc + "/quitter", 
+						{
+							type: "POST",
+							data: {prolificid: self.taskdata.id}
+						}
+					);
+					return "By leaving or reloading this page, you opt out of the experiment. Are you sure you want to leave the experiment?";
+				}
+			);
 		}
 
 	};

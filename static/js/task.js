@@ -167,7 +167,7 @@ var current = mycounterbalance % (materials.length/2);
 makeBalancing(0, current, materials.length/2, [2, 2, 1, 1]);
 makeBalancing(materials.length/2, current+(materials.length/2), materials.length, [2, 2, 1, 1]);
 
-//materials = _.shuffle(materials);
+materials = _.shuffle(materials);
 materials.push(practice_materials[0]);
 materials.reverse();
 
@@ -329,18 +329,19 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	};
 	
 	var checkSliderModified = function (shortcuts) {
+		var val = true;
 		if (mode != 'debug') {
 			_.each(
 				shortcuts, 
 				function (item) {
+					console.log($('#' + item + '-value-modified').val());
 					if ($('#' + item + '-value-modified').val() == "0") {
-						return false;
+						val = false;
 					}
 				}
-			);
-			
+			);	
 		}
-		return true;
+		return val;
 	};
 
 	var sliderAlert = function () {

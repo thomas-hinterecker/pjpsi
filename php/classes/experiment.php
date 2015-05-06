@@ -211,13 +211,13 @@ class Experiment {
         $conditions = array_fill(0, (int) $f3->get('num_conds'), 0);
         $counterbalances = array_fill(0, (int) $f3->get('num_counters'), 0);
 
-        // get the already used conds and balances
+        // get the already used conditions and balances
         $result = $f3->get('DB')->exec(
-            'SELECT `condition`, `counterbalance` FROM data WHERE prolificid!=:id && `status`!=:status1 && `status`!=:status2', 
+            'SELECT `condition`, `counterbalance` FROM data WHERE prolificid!=:id && `status`!=:status1', //  && `status`!=:status2
             array(
                 ':id' => $prolificid,
                 ':status1' => $f3->get('STATUS.NOT_ACCEPTED'),
-                ':status2' => $f3->get('STATUS.QUITEARLY')
+                //':status2' => $f3->get('STATUS.QUITEARLY')
             )
         );
         foreach ($result as $row) {
@@ -225,7 +225,7 @@ class Experiment {
             $counterbalances[$row['counterbalance']]++;
         }
 
-        // assign to a group
+        // assign to a condition
         $lowest_val = min($conditions);
         $possibles = array();
         foreach ($conditions as $condition => $value) {
