@@ -59,9 +59,9 @@ var materials = [
 	[
 		2,
 		'Intellectual property law in the US will be updated to a reflect advances in technology by the year 2040', 
-		'Russia will become the world center for software development by 2040', 
+		' Russia will become the world center for software development by 2040', 
 		'Intellectual property law in the US will ' + not() + ' be updated to a reflect advances in technology by the year 2040', 
-		'Russia will ' + not() + ' become the world center for software development by 2040'
+		' Russia will ' + not() + ' become the world center for software development by 2040'
 	],
 	[
 		3,
@@ -73,16 +73,16 @@ var materials = [
 	[
 		4,
 		'The United States adopts an open border policy of universal acceptance', 
-		'English is legally declared the official language of the United States', 
+		' English is legally declared the official language of the United States', 
 		'The United States does ' + not() + ' adopt an open border policy of universal acceptance', 
-		'English is ' + not() + ' legally declared the official language of the United States'
+		' English is ' + not() + ' legally declared the official language of the United States'
 	],
 	[
 		5,
 		' Greece will make a full economic recovery in the next 10 years', 
-		'Greece will be forced to leave the EU in the next 10 years', 
+		' Greece will be forced to leave the EU in the next 10 years', 
 		' Greece will ' + not() + ' make a full economic recovery in the next 10 years', 
-		'Greece will ' + not() + ' be forced to leave the EU in the next 10 years'
+		' Greece will ' + not() + ' be forced to leave the EU in the next 10 years'
 	],
 	[
 		6,
@@ -493,7 +493,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	};
 
 	var getConditional = function (a, b) {
-		return "IF " + lowercaseFirstLetter(a) + " THEN " + lowercaseFirstLetter(b);
+		return "IF " + lowercaseFirstLetter(a) + " THEN " + lowercaseFirstLetter(b) + '.';
 	};
 
 	var getDisjunction = function(a, b, type) {
