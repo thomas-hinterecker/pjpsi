@@ -33,32 +33,31 @@ class Analyze {
                     $phase = strtolower($trial['trialdata']['phase']);
 
                     if (strstr($phase, 'inference')) {
-                        $response = 0;
-                        if ($trial['trialdata']['response'] == "yes") {
-                            $response = 1;
-                        }
                         $subjects[$count]['materials'][$trial['trialdata']['material']] = array(
                             'version' => $trial['trialdata']['version'],
-                            'response' => $response,
                             'rt' => $trial['trialdata']['rt'],
-                            'estimates' => array()
+                            'estimates' => array(),                          
                         );
-                    }
-                     if (strstr($phase, 'jpd')) {
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['jpd_estimates'] = array(
-                            'a-and-b' => $trial['trialdata']['a-and-b'],
-                            'na-and-b' => $trial['trialdata']['na-and-b'],
-                            'a-and-nb' => $trial['trialdata']['a-and-nb'],
-                            'na-and-nb' => $trial['trialdata']['na-and-nb'],
-                            'rt' => $trial['trialdata']['rt'],
-                        );
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['a'] = $this->getResponse($trial['trialdata'], 'a');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['b'] = $this->getResponse($trial['trialdata'], 'b');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['a-and-b'] = $this->getResponse($trial['trialdata'], 'a-and-b');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['na-and-nb'] = $this->getResponse($trial['trialdata'], 'na-and-nb');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['a-or-b-i'] = $this->getResponse($trial['trialdata'], 'a-or-b-i');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['na-or-nb'] = $this->getResponse($trial['trialdata'], 'na-or-nb');
+          
                     }
                     if (strstr($phase, 'likelihoods')) {
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['pc_estimates'] = array(
-                            'premise' => $trial['trialdata']['premise'],
-                            'conclusion' => $trial['trialdata']['conclusion'],
-                            'rt' => $trial['trialdata']['rt'],
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates'] = array(
+                            'rt' => $trial['trialdata']['rt'],                        
                         );
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['a'] = $this->getEstimate($trial['trialdata'], 'a');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['b'] = $this->getEstimate($trial['trialdata'], 'b');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['a-and-b'] = $this->getEstimate($trial['trialdata'], 'a-and-b');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['na-and-nb'] = $this->getEstimate($trial['trialdata'], 'na-and-nb');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['a-or-b-i'] = $this->getEstimate($trial['trialdata'], 'a-or-b-i');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['na-or-nb'] = $this->getEstimate($trial['trialdata'], 'na-or-nb');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['nb-a-and-b'] = $this->getEstimate($trial['trialdata'], 'nb-a-and-b');
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['a-or-b-e'] = $this->getEstimate($trial['trialdata'], 'a-or-b-e');
                     }
                 }
                 $subjects[$count]['postquestionnaire'] = $subject['questiondata'];
@@ -66,19 +65,19 @@ class Analyze {
                 ++$count;
             }
 
-            echo "ID;material;version;response;rt;a-and-b;na-and-b;a-and-nb;na-and-nb;rt_jpd;premise;conclusion;rt_pc<br />";
+            echo "ID;material;version;rt;a;b;a-and-b;na-and-nb;a-or-b-i;na-or-nb;rt_estimates;a-prob;b-prob;a-and-b-prob;na-and-nb-prob;a-or-b-i-prob;na-or-nb-prob;nb-a-and-b-prob;a-and-b-e-prob<br />";
             foreach ($subjects as $subject) {
                 foreach ($subject['materials'] as $key => $material) {
                     echo $subject['prolificid'] . ";"
                         . $key . ";"
-                        . $material['version'] . ";"
-                        . $material['response'] . ";"
-                        . $material['rt'] . ";"
                     ;
-                    foreach ($material['jpd_estimates'] as $estimate) {
-                        echo $estimate . ";";
-                    }
-                    foreach ($material['pc_estimates'] as $estimate) {
+                    foreach ($material as $materia_key => $value) {
+                        if ($materia_key == 'estimates') {
+                            continue;
+                        }
+                        echo $value . ";";
+                    }                    
+                    foreach ($material['estimates'] as $estimate) {
                         echo $estimate . ";";
                     }
                     echo "<br />";
@@ -96,6 +95,24 @@ class Analyze {
             }
             echo '</pre>';
         }
+    }
+
+    function getResponse ($data, $which) {
+        if (true == isset($data[$which])) {
+            if ($data[$which] == "yes") {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        return "NA";
+    }
+
+    function getEstimate ($data, $which) {
+        if (true == isset($data[$which])) {
+            return $data[$which];
+        }
+        return "NA";
     }
 
     function analyzeData2 ($f3, $params) {
@@ -233,13 +250,13 @@ class Analyze {
                 // check versions
                 //var_dump($subjects[$count]['versions']['Decr']);
                 foreach ($subjects[$count]['versions']['Decr'] as $version => $num) {
-                    if (($version == 1 && $num != 2) || ($version == 2 && $num != 2) || ($version == 3 && $num != 1) || ($version == 4 && $num != 1)) {
+                    if (($version == 1 && $num != 4) || ($version == 2 && $num != 1) || ($version == 3 && $num != 1)) {
                             echo $version . ' DECR VERSION ERROR!!<br />';
                     }
                 }
                 //var_dump($subjects[$count]['versions']['Incr']);
                 foreach ($subjects[$count]['versions']['Incr'] as $version => $num) {
-                    if (($version == 1 && $num != 2) || ($version == 2 && $num != 2) || ($version == 3 && $num != 1) || ($version == 4 && $num != 1)) {
+                    if (($version == 1 && $num != 4) || ($version == 2 && $num != 1) || ($version == 3 && $num != 1)) {
                             echo $version . ' INCR VERSION ERROR!!<br />';
                     }
                 }

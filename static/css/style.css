@@ -88,12 +88,12 @@ strong {
   margin-left: 50px;
 }
 
-#premise, #conclusion {
-  font-size: 18px;
+#premise, .conclusion, #continue {
+  /*font-size: 18px;*/
 }
 
-#conclusion {
-  margin-top: 20px;
+.conclusion {
+
 }
 
 #sliders {
