@@ -407,6 +407,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			+' </div>'
 		);
 		createSliders(inference);
+		$(document).scrollTop(0);  
 		$(".response").click(
 			function () {
 				response = $(this).attr('value');
