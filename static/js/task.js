@@ -283,7 +283,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			timeon = new Date().getTime();
 			removeContent();
 			//listening = true;
-
+			$(document).scrollTop(0);
 			conclusion_showed = [];
 			showPremise(inference);
 			showNextConclusion(inference, _.shuffle(getConclusionTypes(inference)), 0);
@@ -390,6 +390,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	var trialStep2 = function(inference) {
 		timeon = new Date().getTime();
 		removeContent();
+		$(document).scrollTop(0);
 		//listening = true;
 		$('#content').html(
 			'<div>'
@@ -407,7 +408,6 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			+' </div>'
 		);
 		createSliders(inference);
-		$(document).scrollTop(0);  
 		$(".response").click(
 			function () {
 				response = $(this).attr('value');
