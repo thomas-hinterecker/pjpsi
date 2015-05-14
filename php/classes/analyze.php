@@ -272,9 +272,9 @@ class Analyze {
 
             $materials_verions = array();
             $versions = array(
-                'Total' => array('1' => 0, '2' => 0, '3' => 0, '4' => 0),
-                'Decr' => array('1' => 0, '2' => 0, '3' => 0, '4' => 0),
-                'Incr' => array('1' => 0, '2' => 0, '3' => 0, '4' => 0)
+                'Total' => array('1' => 0, '2' => 0, '3' => 0),
+                'Decr' => array('1' => 0, '2' => 0, '3' => 0),
+                'Incr' => array('1' => 0, '2' => 0, '3' => 0)
             );
 
             $subjects = array();
@@ -284,10 +284,10 @@ class Analyze {
                     'phases' => array(
                         'instructions' => 0,
                         'practice_inference' => 0,
-                        'practice_jpd' => 0,
+                        'practice_inferences' => 0,
                         'practice_likelihoods' => 0,
                         'test_inference' => 0,
-                        'test_jpd' => 0,
+                        'test_inferences' => 0,
                         'test_likelihoods' => 0,
                         'postquestionnaire' => 0
                     ),
@@ -298,7 +298,7 @@ class Analyze {
                     
                     $subjects[$count]['phases'][$phase]++;
 
-                    if (strstr($phase, 'test_inference')) {
+                    if (strstr($phase, 'test_inferences')) {
                         $subjects[$count]['versions']['Total'][$trial['trialdata']['version']]++;
                         if ($trial['trialdata']['material'] <= 6) {
                             $subjects[$count]['versions']['Decr'][$trial['trialdata']['version']]++;
