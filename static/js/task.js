@@ -247,7 +247,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				assertion = getConjunction(inference[material_na], inference[material_nb]);
 				break;
 			case "nb-a-and-b":
-				assertion = "It is not the case both that " + lowercaseFirstLetter(getConjunction(inference[material_a], inference[material_b]));
+				assertion = "It is not the case both that " + lowercaseFirstLetter(getConjunction(inference[material_a], inference[material_b], "that "));
 				break;
 		}
 		if (is_conclusion == true && inference[material_version] == 1) {
@@ -266,8 +266,11 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		return a + " OR " + lowercaseFirstLetter(b) + ending + '.';
 	};
 
-	var getConjunction = function(a, b) {
-		return a + " AND " + lowercaseFirstLetter(b) + '.';
+	var getConjunction = function(a, b, add) {
+		if (typeof(add) == "undefined") {
+			add = "";
+		}
+		return a + " AND " + add + lowercaseFirstLetter(b) + '.';
 	};
 
 	var makePossibility = function (assertion) {
@@ -294,14 +297,17 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		d3.select("#content")
 			.append("div")
 			.attr("id","premise");
-		$("#premise").append(
-			'<p>'
+		var html = '';
+		html += '<p>'
 				+ '<b>Please choose for each assertion (1 to 4) whether or not the premise implies that it is true.</b><br />' 
-				+ 'The next assertion will appear after you made a decision for the previous assertion. If necessary, please scroll down to the rest of the page.'
-			+ '</p>'			
-			+ '<hr />'
-			+ '<p><b>Premise:</b> ' + getAssertion(inference, getPremiseType(inference), false) + '</p>'
-		);
+				+ 'The next assertion will appear after you made a decision for the previous assertion. '
+				+ 'After four assertions a continue button will appear at the bottom. '
+				+ 'If necessary, please scroll down to the rest of the page. '
+			+ '</p>'
+			+ '<hr />';
+		html += '<p><b>Premise:</b> ' + getAssertion(inference, getPremiseType(inference), false) + '</p>'
+		+ '<hr />';
+		$("#premise").append(html);
 	};
 
 	var showNextConclusion = function (inference, types, count) {
@@ -315,8 +321,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			.attr("class", "conclusion");
 
 		$('#' + div_id).append(
-			'<hr />'
-			+ '<p>'
+			'<p style="margin-bottom: 15px;">'
 				+  (count+1) + '. '
 				+  getAssertion(inference, types[count], true)
 			+ '</p>'
@@ -329,6 +334,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			+ '</p>'
 			+ '<input id="' + text_field_id + '" type="hidden" value="" />'
 			+ '<div style="clear:both;"></div>'
+			+ '<hr />'
 		);
 		$('.' + buttons_class).click(
 			function () {
@@ -337,17 +343,42 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 					$('.' + buttons_class).removeClass("btn-danger");
 					$(this).addClass("btn-danger");
 					$('#' + text_field_id).val(response);
+					var rt = new Date().getTime() - timeon;
+					pjpsi.recordTrialData(
+						{
+							'phase':getPhase(1, inference),
+							//'response':response,
+							//'hit':hit,
+							'rt':rt,
+							'material':inference[material_id],
+							'version':inference[material_version],
+							'conclusion':types[count],
+							'response':response 
+						}
+		           	);					
 		           	if (conclusion_showed.indexOf(types[count+1]) < 0) {
 		           		conclusion_showed.push(types[count+1]);
 		           		if (count+1 < types.length) {
 		           			showNextConclusion(inference, types, count+1);
+		           			/*showContinueButton(
+		           				function () { 
+		           					$('.conclusion').remove();
+									$('#continue').remove();
+		           					setTimeout(
+		           						function () { 
+		           							showNextConclusion(inference, types, count+1); 
+		           						}, 
+		           						200
+		           					); 
+		           				}
+		           			);*/
 		           		} else {
 							showContinueButton(function () { trialStep2(inference); });
 		           		}
 		           	}
 				}
 			}
-		);		
+		);
 	};
 
 	var showContinueButton = function (callback) {
@@ -355,8 +386,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			.append("div")
 			.attr("id","continue");
 		$('#continue').html(
-			'<hr />'
-			+ '<div class="col-xs-2"></div><div class="col-xs-8">'
+			'<div class="col-xs-2"></div><div class="col-xs-8">'
 			+ '<center><button type="button" value="continue" class="btn btn-primary btn-lg btn-estimates continue">'
 				+ 'Continue <span class="glyphicon glyphicon-arrow-right"></span>'
 			+ '</button></center></div><div class="col-xs-2"></div>'
@@ -368,7 +398,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				var rt = new Date().getTime() - timeon;
 				pjpsi.recordTrialData(
 					{
-						'phase':getPhase(1, inference),
+						'phase':getPhase(2, inference),
 						//'response':response,
 						//'hit':hit,
 						'rt':rt,
@@ -418,7 +448,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 					var rt = new Date().getTime() - timeon;
 					pjpsi.recordTrialData(
 						{
-							'phase':getPhase(2, inference),
+							'phase':getPhase(3, inference),
 							//'response':response,
 							//'hit':hit,
 							'rt':rt,
@@ -536,11 +566,17 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				}
 				break;
 			case 2:
+				phase = "TEST_INFERENCES";
+				if (inference[material_id] > task_num) {
+					phase = "PRACTICE_INFERENCES";
+				}
+				break;				
+			case 3:
 				phase = "TEST_LIKELIHOODS";
 				if (inference[material_id] > task_num) {
 					phase = "PRACTICE_LIKELIHOODS";
 				}
-				break;
+				break;				
 		}
 		return phase;
 	};

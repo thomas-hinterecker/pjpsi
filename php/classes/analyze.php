@@ -32,7 +32,7 @@ class Analyze {
 
                     $phase = strtolower($trial['trialdata']['phase']);
 
-                    if (strstr($phase, 'inference')) {
+                    if (strstr($phase, 'inferences')) {
                         $subjects[$count]['materials'][$trial['trialdata']['material']] = array(
                             'version' => $trial['trialdata']['version'],
                             'rt' => $trial['trialdata']['rt'],
@@ -113,9 +113,76 @@ class Analyze {
             return $data[$which];
         }
         return "NA";
-    }
+    } 
 
     function analyzeData2 ($f3, $params) {
+        if ($params['key'] == $f3->get('analyze_key')) {
+            echo '<pre>';
+
+            $result = $f3->get('DB')->exec('SELECT * FROM data ORDER BY end ASC');
+
+            $data = array();
+
+            $statuses = array($f3->get('STATUS.COMPLETED'), $f3->get('STATUS.SUBMITTED'), $f3->get('STATUS.CREDITED')); // completed tasks
+            
+            $exlude = array();
+            foreach ($result as $row) {
+                if (in_array($row['status'], $statuses) && false == in_array($row['prolificid'], $exlude)) {
+                    array_push($data, json_decode($row['datastring'], true));
+                }
+            }
+
+            $subjects = array();
+            $count = 0;
+            foreach ($data as $subject) {
+                $subjects[$count] = array(
+                    'prolificid' => '',
+                    'materials' => array(),
+                    'postquestionnaire' => array()
+                );
+                foreach ($subject['data'] as $trial) {
+                    $subjects[$count]['prolificid'] = $trial['prolificid'];
+
+                    $phase = strtolower($trial['trialdata']['phase']);
+                    if (strstr($phase, 'inference') && strstr($phase, 'inferences') == false) {
+                        if (false == isset($subjects[$count]['materials'][$trial['trialdata']['material']])) {
+                            $subjects[$count]['materials'][$trial['trialdata']['material']] = array();
+                        }
+                        if ($trial['trialdata']['response'] == "yes") {
+                            $trial['trialdata']['response'] = 1;
+                        } else {
+                            $trial['trialdata']['response'] = 0;
+                        }                        
+                        $subjects[$count]['materials'][$trial['trialdata']['material']][] = array(
+                            'version' => $trial['trialdata']['version'],
+                            'rt' => $trial['trialdata']['rt'],
+                            'conclusion' => $trial['trialdata']['conclusion'],
+                            'response' => $trial['trialdata']['response'],
+                        );
+                    }
+                }
+                ++$count;
+            }
+
+            echo "ID;material;version;rt;conclusion;response<br />";
+            foreach ($subjects as $subject) {
+                foreach ($subject['materials'] as $key => $material) {
+                    foreach ($material as $responses) {
+                        echo $subject['prolificid'] . ";"
+                            . $key . ";"
+                        ;
+                        foreach ($responses as $value) {
+                            echo $value . ";";
+                        }                    
+                        echo "<br />";
+                    }
+                }
+
+            }
+        }
+    }
+
+    function analyzeData3 ($f3, $params) {
         if ($params['key'] == $f3->get('analyze_key')) {
             echo '<pre>';
 
