@@ -340,8 +340,8 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			function () {
 				response = $(this).attr('value');
 				if (response.length > 0) {
-					$('.' + buttons_class).removeClass("btn-danger");
-					$(this).addClass("btn-danger");
+					$('.' + buttons_class).removeClass("btn-warning");
+					$(this).addClass("btn-warning");
 					$('#' + text_field_id).val(response);
 					var rt = new Date().getTime() - timeon;
 					pjpsi.recordTrialData(
