@@ -35,6 +35,7 @@ material_b = 2;
 material_na = 3;
 material_nb = 4;
 material_version = 5;
+material_starting_question = 6;
 
 var practice_materials = [
 	[
@@ -43,7 +44,8 @@ var practice_materials = [
 		'the New York Times becomes more profitable', 
 		' US companies will ' + not() + ' focus their advertising on the Web next year', 
 		'the New York Times will ' + not() + ' become more profitable',
-		5
+		7,
+		Math.floor((Math.random() * 2) + 1)
 	]
 ];
 var practice_num = practice_materials.length;
@@ -137,7 +139,7 @@ var materials = [
 var task_num = materials.length;
 
 // balancing
-var makeBalancing = function (start, current, num, versions) {
+var makeBalancing = function (start, current, num, versions, first_question) {
 	//console.log(current)
 	var version_count = 0;
 	var version = -1;
@@ -154,7 +156,8 @@ var makeBalancing = function (start, current, num, versions) {
 			}
 		}
 		materials[current][material_version] = version + 1;
-		//console.log(current+" - "+materials[current][material_version])
+		materials[current][material_starting_question] = first_question[version];
+		//console.log(current+" - "+materials[current][material_version]+" - "+materials[current][material_starting_question])
 		++counter;
 		++current;
 		if (current == num) {
@@ -163,14 +166,28 @@ var makeBalancing = function (start, current, num, versions) {
 		version = -1;
 	}
 }
+// Problem versions
 var current = mycounterbalance % (materials.length/2);
-makeBalancing(0, current, materials.length/2, [4, 1, 1]);
-makeBalancing(materials.length/2, current+(materials.length/2), materials.length, [4, 1, 1]);
+
+first_question1 = _.shuffle([1,2,1,2,1,2]);
+first_question2 = [];
+for (var i = 0; i <= 5; ++i) {
+	if (first_question1[i] == 1) {
+		first_question2[i] = 2;
+	} else {
+		first_question2[i] = 1;
+	}
+}
+
+makeBalancing(0, current, materials.length/2, [1, 1, 1, 1, 1, 1], first_question1);
+makeBalancing(materials.length/2, current+(materials.length/2), materials.length, [1, 1, 1, 1, 1, 1], first_question2);
+// Starting question
+//var current = mycondition % materials.length;
+//makeBalancing(0, current, materials.length, [6, 6], material_starting_question);
 
 materials = _.shuffle(_.shuffle(materials));
 materials.push(practice_materials[0]);
 materials.reverse();
-
 /********************
 * HTML manipulation
 *
@@ -189,81 +206,87 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	var timeon = false; // time needed to provide estimates of the probabilities
 	    //listening = false;
 
-	var conclusion_showed = [];
-
-	var getConclusionTypes = function (inference) {
-		var types = ['a', 'b', 'na-and-nb'];
-		switch (inference[material_version]) {
-			case 1:
-				types.push('a-and-b');
-				break;
-			case 2:
-				types.push('a-or-b-i');
-				break;
-			case 3:
-				types.push('na-or-nb');
-				break;
-			case 5:
-				types.push('a-and-b');
-				break;
-		}	
-		return types;
-	};
+	var problem_count = 0;
 
 	var getPremiseType = function (inference) {
 		switch (inference[material_version]) {
 			case 1:
-				return "a-or-b-i";
+				return "a-ore-b";
 			case 2:
-				return "a-and-b";
+				return "a-ore-b";
 			case 3:
-				return "nb-a-and-b";
+				return "a-ore-b";
+			case 4:
+				return "a-ore-nb";
 			case 5:
+				return "a-or-b";
+			case 6:
+				return "a-or-b";
+			case 7:
 				return "a-or-b-e";
+		}
+	};
+
+	var getConclusionType = function (inference) {
+		switch (inference[material_version]) {
+			case 1:
+				return "a-and-nb";
+			case 2:
+				return "na-ore-b";
+			case 3:
+				return "na-and-nb";
+			case 4:
+				return "na-ore-b";
+			case 5:
+				return "a-and-b";
+			case 6:
+				return "na-and-nb";
+			case 7:
+				return "a-or-b";
 		}
 	};
 
 	var getAssertion = function (inference, which, is_conclusion) {
 		switch (which) {
-			case "a-or-b-i":
+			case "a-or-b":
 				assertion = getDisjunction(inference[material_a], inference[material_b], "I");
 				break;
-			case "a-or-b-e":
+			case "a-ore-b":
 				assertion = getDisjunction(inference[material_a], inference[material_b], "E");
 				break;
+			case "a-or-b-e":
+				assertion = getDisjunction(inference[material_a], inference[material_b], "E2");
+				break;				
 			case "na-or-nb":
 				assertion = getDisjunction(inference[material_na], inference[material_nb], null);
 				break;
-			case "a":
-				assertion = uppercaseFirstLetter(inference[material_a]) + '.';
+			case "a-ore-nb":
+				assertion = getDisjunction(inference[material_a], inference[material_nb], "E");
 				break;
-			case "b":
-				assertion = uppercaseFirstLetter(inference[material_b]) + '.';
+			case "na-ore-b":
+				assertion = getDisjunction(inference[material_na], inference[material_b], "E");
 				break;
 			case "a-and-b":
 				assertion = getConjunction(inference[material_a], inference[material_b]);
 				break;
+			case "a-and-nb":
+				assertion = getConjunction(inference[material_a], inference[material_nb]);
+				break;				
 			case "na-and-nb":
 				assertion = getConjunction(inference[material_na], inference[material_nb]);
 				break;
-			case "nb-a-and-b":
-				assertion = "It is not the case both that " + lowercaseFirstLetter(getConjunction(inference[material_a], inference[material_b], "that "));
-				break;
-		}
-		if (is_conclusion == true && inference[material_version] == 1) {
-			assertion = makePossibility(assertion);
-		}		
+		}	
 		return assertion;
 	};
 
 	var getDisjunction = function(a, b, type) {
-		var ending = "";
 		if (type == "I") {
-			ending = ", OR both";
+			return a + " OR " + lowercaseFirstLetter(b) + ", OR both.";
 		} else if (type == "E") {
-			ending = ", BUT not both";
-		}	
-		return a + " OR " + lowercaseFirstLetter(b) + ending + '.';
+			return a + " OR ELSE " + lowercaseFirstLetter(b) + ".";
+		} else if (type == "E2") {
+			return a + " OR " + lowercaseFirstLetter(b) + ", BUT not both.";
+		}
 	};
 
 	var getConjunction = function(a, b, add) {
@@ -273,176 +296,201 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		return a + " AND " + add + lowercaseFirstLetter(b) + '.';
 	};
 
-	var makePossibility = function (assertion) {
-		return "It is possible that " + lowercaseFirstLetter(assertion);
-	}	
-
 	var trialStep1 = function () {
 		if (inferences.length===0) {
 			finish();
-		}
-		else {
+		} else {
+			++problem_count;
 			inference = inferences.shift();
-			timeon = new Date().getTime();
 			removeContent();
-			//listening = true;
-			$(document).scrollTop(0);
-			conclusion_showed = [];
-			showPremise(inference);
-			showNextConclusion(inference, _.shuffle(getConclusionTypes(inference)), 0);
+			/*d3.select("#content")
+				.append("div")
+				.attr("id","problem_count");
+			var html = '<p style="text-align:center;font-size:20pt;"><b>Problem ' + problem_count + '</b></p>';
+			$("#problem_count").append(html);*/
+
+			d3.select("#content")
+				.append("div")
+				.attr("id","assertions");
+			var html = '';
+			/*
+				'<p>'
+					+ '<b>Please decide for the following assertions whether or not they can both be true at the same time.</b><br />' 
+				+ '</p>'
+				+ '<hr />'
+				+ 
+			*/
+			html += '<p>The two assertions of the ' + problem_count + '. problem:</p>'
+				+ '<p style="margin-top: 10px;">'
+					+ '<b>A</b>: ' + getAssertion(inference, getPremiseType(inference), false)
+				+ '</p>'
+				+ '<p style="margin-top: 20px;">'
+					+ '<b>B</b>: ' + getAssertion(inference, getConclusionType(inference), true)
+				+ '</p>'
+				+ '<hr />'
+				+'<p>'
+					+ '<div class="col-xs-2"></div><div class="col-xs-8">'
+					+ '<center><button type="button" value="continue" class="btn btn-primary btn-lg btn-estimates response">'
+						+ 'I read the assertions!</span>'
+					+ '</button></center></div><div class="col-xs-2"></div>'
+				+ '</p>';
+			$("#assertions").append(html);	
+			$('.response').click(
+				function () {
+					response = $(this).attr('value');
+					if (response.length > 0) {
+						var rt = new Date().getTime() - timeon;
+						pjpsi.recordTrialData(
+							{
+								'phase':getPhase(1, inference),
+								//'response':response,
+								//'hit':hit,
+								'rt':rt,
+								'material':inference[material_id],
+								'version':inference[material_version]
+							}
+			           	);
+						trialStep2(inference);
+					}
+				}
+			);
+
+			/*setTimeout(
+				function(){
+			  		trialStep2(inference);
+				}, 
+				1500
+			);*/
 		}
 	};
 
-	var showPremise = function(inference) {
-		d3.select("#content")
-			.append("div")
-			.attr("id","premise");
-		var html = '';
-		html += '<p>'
-				+ '<b>Please choose for each assertion (1 to 4) whether or not the premise implies that it is true.</b><br />' 
-				+ 'The next assertion will appear after you made a decision for the previous assertion. '
-				+ 'After four assertions a continue button will appear at the bottom. '
-				+ 'If necessary, please scroll down to the rest of the page. '
-			+ '</p>'
-			+ '<hr />';
-		html += '<p><b>Premise:</b> ' + getAssertion(inference, getPremiseType(inference), false) + '</p>'
-		+ '<hr />';
-		$("#premise").append(html);
+	var trialStep2 = function (inference) {
+		timeon = new Date().getTime();
+		removeContent();
+		//listening = true;
+		$(document).scrollTop(0);
+		if (inference[material_starting_question] == 1) {
+			showQuestion1(
+				inference,
+				function () {
+					trialStep3(inference, showQuestion2);
+				}
+			);
+		} else {
+			showQuestion2(
+				inference,
+				function () {
+					trialStep3(inference, showQuestion1);
+				}
+			);
+		}
 	};
 
-	var showNextConclusion = function (inference, types, count) {
-		var div_id = 'conclusion-' + types[count];
-		var buttons_class = 'response-conclusion-' + types[count];
-		var text_field_id = 'conclusion-' + types[count]  + '-response';
+	var trialStep3 = function (inference, callback) {
+		timeon = new Date().getTime();
+		removeContent();
+		$(document).scrollTop(0);
+		callback(
+			inference,
+			function () {
+				trialStep1();
+			}
+		);
+	};
 
+	var showQuestion1 = function(inference, callback) {
 		d3.select("#content")
 			.append("div")
-			.attr("id", div_id)
-			.attr("class", "conclusion");
-
-		$('#' + div_id).append(
-			'<p style="margin-bottom: 15px;">'
-				+  (count+1) + '. '
-				+  getAssertion(inference, types[count], true)
+			.attr("id","assertions");
+		var html = '';
+		/*
+			'<p>'
+				+ '<b>Please decide for the following assertions whether or not they can both be true at the same time.</b><br />' 
 			+ '</p>'
-			+'<p>'
-				+ '<div style="text-align:center;">Does the premise imply that this assertion is true?</div>'
-				+ '<div class="col-xs-2"></div><div class="col-xs-8"><center>'
-					+ '<button type="button" value="yes" class="btn btn-primary btn-lg btn-yes ' + buttons_class + '">Yes</button>'
-					+ '<button type="button" value="no" class="btn btn-primary btn-lg btn-no ' + buttons_class + '">No</button>'
-				+ '</center></div><div class="col-xs-2"></div>'
-			+ '</p>'
-			+ '<input id="' + text_field_id + '" type="hidden" value="" />'
-			+ '<div style="clear:both;"></div>'
 			+ '<hr />'
-		);
-		$('.' + buttons_class).click(
+			+ 
+		*/
+		html += '<p>The two assertions of the ' + problem_count + '. problem:</p>'
+			+ '<p style="margin-top: 10px;">'
+				+ '<b>A</b>: ' + getAssertion(inference, getPremiseType(inference), false)
+			+ '</p>'
+			+ '<p style="margin-top: 20px;">'
+				+ '<b>B</b>: ' + getAssertion(inference, getConclusionType(inference), true)
+			+ '</p>'
+			+ '<hr />'
+			+'<p>'
+				+ '<div style="text-align:center;">Please decide:<br /><b>Could both of these assertions be true at the same time?</b></div>'
+				+ '<div class="col-xs-2"></div><div class="col-xs-8"><center>'
+					+ '<button type="button" value="yes" class="btn btn-primary btn-lg btn-yes response">Yes</button>'
+					+ '<button type="button" value="no" class="btn btn-primary btn-lg btn-no response">No</button>'
+				+ '</center></div><div class="col-xs-2"></div>'
+			+ '</p>';
+		$("#assertions").append(html);
+		$('.response').click(
 			function () {
 				response = $(this).attr('value');
 				if (response.length > 0) {
-					$('.' + buttons_class).removeClass("btn-warning");
-					$(this).addClass("btn-warning");
-					$('#' + text_field_id).val(response);
 					var rt = new Date().getTime() - timeon;
 					pjpsi.recordTrialData(
 						{
-							'phase':getPhase(1, inference),
+							'phase':getPhase(2, inference),
 							//'response':response,
 							//'hit':hit,
 							'rt':rt,
 							'material':inference[material_id],
 							'version':inference[material_version],
-							'conclusion':types[count],
 							'response':response 
 						}
-		           	);					
-		           	if (conclusion_showed.indexOf(types[count+1]) < 0) {
-		           		conclusion_showed.push(types[count+1]);
-		           		if (count+1 < types.length) {
-		           			showNextConclusion(inference, types, count+1);
-		           			/*showContinueButton(
-		           				function () { 
-		           					$('.conclusion').remove();
-									$('#continue').remove();
-		           					setTimeout(
-		           						function () { 
-		           							showNextConclusion(inference, types, count+1); 
-		           						}, 
-		           						200
-		           					); 
-		           				}
-		           			);*/
-		           		} else {
-							showContinueButton(function () { trialStep2(inference); });
-		           		}
-		           	}
+		           	);
+					callback();
 				}
 			}
 		);
 	};
 
-	var showContinueButton = function (callback) {
-		d3.select("#content")
-			.append("div")
-			.attr("id","continue");
-		$('#continue').html(
-			'<div class="col-xs-2"></div><div class="col-xs-8">'
-			+ '<center><button type="button" value="continue" class="btn btn-primary btn-lg btn-estimates continue">'
-				+ 'Continue <span class="glyphicon glyphicon-arrow-right"></span>'
-			+ '</button></center></div><div class="col-xs-2"></div>'
-		);
-		$('.continue').click(
-			function () {
-				//listening = false;
-				//var hit = false;
-				var rt = new Date().getTime() - timeon;
-				pjpsi.recordTrialData(
-					{
-						'phase':getPhase(2, inference),
-						//'response':response,
-						//'hit':hit,
-						'rt':rt,
-						'material':inference[material_id],
-						'version':inference[material_version],
-						'a':$('#conclusion-a-response').val(), 
-						'b':$('#conclusion-b-response').val(),
-						'a-and-b':$('#conclusion-a-and-b-response').val(), 
-						'na-and-nb':$('#conclusion-na-and-nb-response').val(),
-						'a-or-b-i':$('#conclusion-a-or-b-i-response').val(),
-						'na-or-nb':$('#conclusion-na-or-nb-response').val()
-					}
-	           	);
-	           	callback();
-			}
-		);		
-	};
-
-	var trialStep2 = function(inference) {
+	var showQuestion2 = function(inference, callback) {
 		timeon = new Date().getTime();
 		removeContent();
 		$(document).scrollTop(0);
 		//listening = true;
-		$('#content').html(
-			'<div>'
-				+ '<p>'
-				+ '<b>What are the chances out of 100 that each of the following assertions (1 to 5) is true?</b>'
-				+ '<br />Choose a number from 0 (no chance at all) to 100 (completely certain) for each assertion by using the sliders.'
-				+ ' If you cannot see a complete page on your system, please scroll down to the rest of the page.'
+		var prob = _.shuffle(_.shuffle([85, 90, 95]));
+		var html = '';
+		html += '<div>'
+				/*+ '<p>'
+					+ '<b>Given this probability for A, what is the lowest probability that you’d assign to B, and what is the highest probability that you’d assign to B?</b>'
+					+ '<br />Choose a number from 0 (no chance at all) to 100 (completely certain) for the lowest and the highest value by using the sliders.'
+					+ ' You can set both sliders to the same value.'
+				+ '</p>'
+				+ '<hr />'*/
+				+ '<p>The two assertions of the ' + problem_count + '. problem:</p>'
+				+ '<p style="margin-top: 10px;">'
+					+ '<b>A</b>: ' + getAssertion(inference, getPremiseType(inference), false)
+				+ '</p>'
+				+ '<p style="margin-top: 20px;">'
+					+ '<b>B</b>: ' + getAssertion(inference, getConclusionType(inference), true)
 				+ '</p>'
 				+ '<hr />'
+				+ '<p>'
+					+ 'Suppose that assertion <b>A</b> has a probability of <b>' + prob[0] + '%</b>:<br />'
+					+ 'What is the lowest and highest probability that you would assign to assertion <b>B</b>?<br />'					
+				+ '</p>'
+				+ '<p>'
+					+ 'Choose a number from 0 (no chance at all) to 100 (completely certain) for both sliders.'
+					+ ' <br />You can set both sliders to the same value, if you think that this is appropriate in this case.'
+				+ '</p>'
 				+ '<div id="sliders"></div>'
 				+ '<div class="col-xs-2"></div><div class="col-xs-8">'
 				+ '<center><button type="button" value="continue" class="btn btn-primary btn-lg btn-estimates response">'
 					+ 'Continue <span class="glyphicon glyphicon-arrow-right"></span>'
 				+ '</button></center></div><div class="col-xs-2"></div>'
-			+' </div>'
-		);
+			+ ' </div>';		
+		$('#content').html(html);
 		createSliders(inference);
 		$(".response").click(
 			function () {
 				response = $(this).attr('value');
 				// Check if all slider have been modified			
-				if (response.length>0 && checkSliderModified(getSliderTypes(inference)) == true) {
+				if (response.length>0 && checkSliderModified(['lowest', 'highest']) == true) {
 					//listening = false;
 					var hit = false;
 					var rt = new Date().getTime() - timeon;
@@ -454,17 +502,12 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 							'rt':rt,
 							'material':inference[material_id],
 							'version':inference[material_version],
-							'a':parseInt($('#a-value').html()), 
-							'b':parseInt($('#b-value').html()),
-							'a-and-b':parseInt($('#a-and-b-value').html()), 
-							'na-and-nb':parseInt($('#na-and-nb-value').html()),
-							'a-or-b-i':parseInt($('#a-or-b-i-value').html()),
-							'na-or-nb':parseInt($('#na-or-nb-value').html()),
-							'nb-a-and-b':parseInt($('#nb-a-and-b-value').html()),
-							'a-or-b-e':parseInt($('#a-or-b-e-value').html())
+							'a':prob[0],
+							'lowest':parseInt($('#lowest-value').html()), 
+							'highest':parseInt($('#highest-value').html()),
 						}
 		            );
-					trialStep1();
+					callback();
 				} else {
 					sliderAlert();
 				}
@@ -487,12 +530,6 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		return val;
 	};
 
-	var getSliderTypes = function (inference) {
-		var types = getConclusionTypes(inference);
-		types.push(getPremiseType(inference));
-		return types;
-	};
-
 	var sliderAlert = function () {
 		alert(
 			"Please set a value for each slider."
@@ -513,15 +550,11 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		};
 		var slider_count = 1;
 		_.each(
-			_.shuffle(getSliderTypes(inference)), 
+			_.shuffle(['lowest', 'highest']), 
 			function (shortcut) {
-				var is_conclusion = true;
-				if (shortcut == getPremiseType(inference)) {
-					is_conclusion = false;
-				}
 				$("#sliders").append(
 					'<div class="text-and-slider">' 
-					+ (slider_count++) + '. ' + getAssertion(inference, shortcut, is_conclusion)
+					+  uppercaseFirstLetter(shortcut) + ' probability of assertion <b>B</b>:'
 					+ '<br /><span id="' + shortcut + '-value" class="slider-value"></span> <span class="slider-value">chance</span> <span id="'  + shortcut + '-value-modified-sign" class="slider-value"> - Slider not modified yet!</span>'
 					+ '<div id="'  + shortcut + '" class="slider"></div><input id="'  + shortcut + '-value-modified" value="0" type="hidden" /><br /><br />'
 					+ '</div>'
@@ -560,17 +593,17 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		var phase = ""
 		switch (step) {
 			case 1:
-				phase = "TEST_INFERENCE";
+				phase = "TEST_ASSERTIONS";
 				if (inference[material_id] > task_num) {
-					phase = "PRACTICE_INFERENCE";
-				}
-				break;
-			case 2:
-				phase = "TEST_INFERENCES";
-				if (inference[material_id] > task_num) {
-					phase = "PRACTICE_INFERENCES";
+					phase = "PRACTICE_ASSERTIONS";
 				}
 				break;				
+			case 2:
+				phase = "TEST_CONSISTENCY";
+				if (inference[material_id] > task_num) {
+					phase = "PRACTICE_CONSISTENCY";
+				}
+				break;			
 			case 3:
 				phase = "TEST_LIKELIHOODS";
 				if (inference[material_id] > task_num) {

@@ -27,37 +27,47 @@ class Analyze {
                     'materials' => array(),
                     'postquestionnaire' => array()
                 );
+                $subjects[$count]['materials'] = array();
                 foreach ($subject['data'] as $trial) {
                     $subjects[$count]['prolificid'] = $trial['prolificid'];
 
                     $phase = strtolower($trial['trialdata']['phase']);
 
-                    if (strstr($phase, 'inferences')) {
-                        $subjects[$count]['materials'][$trial['trialdata']['material']] = array(
-                            'version' => $trial['trialdata']['version'],
-                            'rt' => $trial['trialdata']['rt'],
-                            'estimates' => array(),                          
-                        );
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['a'] = $this->getResponse($trial['trialdata'], 'a');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['b'] = $this->getResponse($trial['trialdata'], 'b');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['a-and-b'] = $this->getResponse($trial['trialdata'], 'a-and-b');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['na-and-nb'] = $this->getResponse($trial['trialdata'], 'na-and-nb');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['a-or-b-i'] = $this->getResponse($trial['trialdata'], 'a-or-b-i');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['na-or-nb'] = $this->getResponse($trial['trialdata'], 'na-or-nb');
-          
+                    if (strstr($phase, 'consistency') || strstr($phase, 'likelihoods')) {
+                        if (false == isset($subjects[$count]['materials'][$trial['trialdata']['material']])) {
+                            $subjects[$count]['materials'][$trial['trialdata']['material']] = array(
+                                'first' => 0,
+                                'version' => '',
+                                'rt' => '',
+                                'response' => '',
+                                'estimates' => array(),
+                            );
+                        }
+                    }
+
+                    if (strstr($phase, 'consistency')) {
+                        if ($trial['trialdata']['response'] == "yes") {
+                            $response = 1;
+                        } else {
+                            $response = 0;
+                        }
+                        if ($subjects[$count]['materials'][$trial['trialdata']['material']]['first'] == 0) {
+                            $subjects[$count]['materials'][$trial['trialdata']['material']]['first'] = 1;
+                        }
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['version'] = $trial['trialdata']['version'];
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['rt'] = $trial['trialdata']['rt'];
+                        $subjects[$count]['materials'][$trial['trialdata']['material']]['response'] = $response;
                     }
                     if (strstr($phase, 'likelihoods')) {
+                        if ($subjects[$count]['materials'][$trial['trialdata']['material']]['first'] == 0) {
+                            $subjects[$count]['materials'][$trial['trialdata']['material']]['first'] = 2;
+                        }
                         $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates'] = array(
-                            'rt' => $trial['trialdata']['rt'],                        
+                            'rt' => $trial['trialdata']['rt'],
+                            'a' => $trial['trialdata']['a'],
+                            'lowest' => $trial['trialdata']['lowest'],
+                            'highest' => $trial['trialdata']['highest'],
                         );
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['a'] = $this->getEstimate($trial['trialdata'], 'a');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['b'] = $this->getEstimate($trial['trialdata'], 'b');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['a-and-b'] = $this->getEstimate($trial['trialdata'], 'a-and-b');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['na-and-nb'] = $this->getEstimate($trial['trialdata'], 'na-and-nb');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['a-or-b-i'] = $this->getEstimate($trial['trialdata'], 'a-or-b-i');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['na-or-nb'] = $this->getEstimate($trial['trialdata'], 'na-or-nb');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['nb-a-and-b'] = $this->getEstimate($trial['trialdata'], 'nb-a-and-b');
-                        $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates']['a-or-b-e'] = $this->getEstimate($trial['trialdata'], 'a-or-b-e');
                     }
                 }
                 $subjects[$count]['postquestionnaire'] = $subject['questiondata'];
@@ -65,7 +75,7 @@ class Analyze {
                 ++$count;
             }
 
-            echo "ID;material;version;rt;a;b;a-and-b;na-and-nb;a-or-b-i;na-or-nb;rt_estimates;a-prob;b-prob;a-and-b-prob;na-and-nb-prob;a-or-b-i-prob;na-or-nb-prob;nb-a-and-b-prob;a-and-b-e-prob<br />";
+            echo "ID;material;version;rt;response;rt_estimates;a-prob;lowest-prob;highest-prob<br />";
             foreach ($subjects as $subject) {
                 foreach ($subject['materials'] as $key => $material) {
                     echo $subject['prolificid'] . ";"
@@ -82,7 +92,6 @@ class Analyze {
                     }
                     echo "<br />";
                 }
-
             }
             echo "<br />";
             echo "ID;howtoimprove;logic_course;engagement;difficulty<br />";
@@ -97,92 +106,7 @@ class Analyze {
         }
     }
 
-    function getResponse ($data, $which) {
-        if (true == isset($data[$which])) {
-            if ($data[$which] == "yes") {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-        return "NA";
-    }
-
-    function getEstimate ($data, $which) {
-        if (true == isset($data[$which])) {
-            return $data[$which];
-        }
-        return "NA";
-    } 
-
     function analyzeData2 ($f3, $params) {
-        if ($params['key'] == $f3->get('analyze_key')) {
-            echo '<pre>';
-
-            $result = $f3->get('DB')->exec('SELECT * FROM data ORDER BY end ASC');
-
-            $data = array();
-
-            $statuses = array($f3->get('STATUS.COMPLETED'), $f3->get('STATUS.SUBMITTED'), $f3->get('STATUS.CREDITED')); // completed tasks
-            
-            $exlude = array();
-            foreach ($result as $row) {
-                if (in_array($row['status'], $statuses) && false == in_array($row['prolificid'], $exlude)) {
-                    array_push($data, json_decode($row['datastring'], true));
-                }
-            }
-
-            $subjects = array();
-            $count = 0;
-            foreach ($data as $subject) {
-                $subjects[$count] = array(
-                    'prolificid' => '',
-                    'materials' => array(),
-                    'postquestionnaire' => array()
-                );
-                foreach ($subject['data'] as $trial) {
-                    $subjects[$count]['prolificid'] = $trial['prolificid'];
-
-                    $phase = strtolower($trial['trialdata']['phase']);
-                    if (strstr($phase, 'inference') && strstr($phase, 'inferences') == false) {
-                        if (false == isset($subjects[$count]['materials'][$trial['trialdata']['material']])) {
-                            $subjects[$count]['materials'][$trial['trialdata']['material']] = array();
-                        }
-                        if ($trial['trialdata']['response'] == "yes") {
-                            $trial['trialdata']['response'] = 1;
-                        } else {
-                            $trial['trialdata']['response'] = 0;
-                        }                        
-                        $subjects[$count]['materials'][$trial['trialdata']['material']][] = array(
-                            'version' => $trial['trialdata']['version'],
-                            'rt' => $trial['trialdata']['rt'],
-                            'conclusion' => $trial['trialdata']['conclusion'],
-                            'response' => $trial['trialdata']['response'],
-                        );
-                    }
-                }
-                ++$count;
-            }
-
-            echo "ID;material;version;rt;conclusion;response<br />";
-            foreach ($subjects as $subject) {
-                foreach ($subject['materials'] as $key => $material) {
-                    foreach ($material as $responses) {
-                        echo $subject['prolificid'] . ";"
-                            . $key . ";"
-                        ;
-                        foreach ($responses as $value) {
-                            echo $value . ";";
-                        }                    
-                        echo "<br />";
-                    }
-                }
-
-            }
-        }
-    }
-
-    function analyzeData3 ($f3, $params) {
         if ($params['key'] == $f3->get('analyze_key')) {
             echo '<pre>';
 
@@ -272,9 +196,9 @@ class Analyze {
 
             $materials_verions = array();
             $versions = array(
-                'Total' => array('1' => 0, '2' => 0, '3' => 0),
-                'Decr' => array('1' => 0, '2' => 0, '3' => 0),
-                'Incr' => array('1' => 0, '2' => 0, '3' => 0)
+                'Total' => array('1' => 0, '2' => 0, '3' => 0, '4' => 0, '5' => 0, '6' => 0),
+                'Decr' => array('1' => 0, '2' => 0, '3' => 0, '4' => 0, '5' => 0, '6' => 0),
+                'Incr' => array('1' => 0, '2' => 0, '3' => 0, '4' => 0, '5' => 0, '6' => 0)
             );
 
             $subjects = array();
@@ -283,11 +207,11 @@ class Analyze {
                 $subjects[$count] = array(
                     'phases' => array(
                         'instructions' => 0,
-                        'practice_inference' => 0,
-                        'practice_inferences' => 0,
+                        'practice_assertions' => 0,
+                        'practice_consistency' => 0,
                         'practice_likelihoods' => 0,
-                        'test_inference' => 0,
-                        'test_inferences' => 0,
+                        'test_assertions' => 0,
+                        'test_consistency' => 0,
                         'test_likelihoods' => 0,
                         'postquestionnaire' => 0
                     ),
@@ -298,7 +222,7 @@ class Analyze {
                     
                     $subjects[$count]['phases'][$phase]++;
 
-                    if (strstr($phase, 'test_inferences')) {
+                    if (strstr($phase, 'test_consistency')) {
                         $subjects[$count]['versions']['Total'][$trial['trialdata']['version']]++;
                         if ($trial['trialdata']['material'] <= 6) {
                             $subjects[$count]['versions']['Decr'][$trial['trialdata']['version']]++;
@@ -312,18 +236,29 @@ class Analyze {
                         $materials_verions[$trial['trialdata']['material']][$trial['trialdata']['version']]++;
                     }
                 }
-                $subjects[$count]['postquestionnaire'] = $subject['questiondata'];
 
                 // check versions
                 //var_dump($subjects[$count]['versions']['Decr']);
                 foreach ($subjects[$count]['versions']['Decr'] as $version => $num) {
-                    if (($version == 1 && $num != 4) || ($version == 2 && $num != 1) || ($version == 3 && $num != 1)) {
+                    if (($version == 1 && $num != 1) 
+                        || ($version == 2 && $num != 1) 
+                        || ($version == 3 && $num != 1)
+                        || ($version == 4 && $num != 1)
+                        || ($version == 5 && $num != 1)
+                        || ($version == 6 && $num != 1)
+                        ) {
                             echo $version . ' DECR VERSION ERROR!!<br />';
                     }
                 }
                 //var_dump($subjects[$count]['versions']['Incr']);
                 foreach ($subjects[$count]['versions']['Incr'] as $version => $num) {
-                    if (($version == 1 && $num != 4) || ($version == 2 && $num != 1) || ($version == 3 && $num != 1)) {
+                    if (($version == 1 && $num != 1) 
+                        || ($version == 2 && $num != 1) 
+                        || ($version == 3 && $num != 1)
+                        || ($version == 4 && $num != 1)
+                        || ($version == 5 && $num != 1)
+                        || ($version == 6 && $num != 1)
+                        ) {
                             echo $version . ' INCR VERSION ERROR!!<br />';
                     }
                 }
@@ -341,6 +276,110 @@ class Analyze {
                     }
                 }
             }*/
+
+            var_dump($materials_verions);
+            echo '</pre>';
+        }
+    }
+
+    function analyzeBalancing2 ($f3, $params) {
+        if ($params['key'] == $f3->get('analyze_key')) {
+            echo '<pre>';
+
+            $result = $f3->get('DB')->exec('SELECT * FROM data');
+
+            $data = array();
+
+            $statuses = array($f3->get('STATUS.COMPLETED'), $f3->get('STATUS.SUBMITTED'), $f3->get('STATUS.CREDITED')); // completed tasks
+            
+            $exlude = array();
+            foreach ($result as $row) {
+                if (in_array($row['status'], $statuses) && false == in_array($row['prolificid'], $exlude)) {
+                    array_push($data, json_decode($row['datastring'], true));
+                }
+            }
+
+            $materials_verions = array();
+            $problem_versions = array();
+            $versions = array(
+                'Total' => array('1' => 0, '2' => 0),
+                'Decr' => array('1' => 0, '2' => 0),
+                'Incr' => array('1' => 0, '2' => 0)
+            );
+
+            $subjects = array();
+            $count = 0;
+            foreach ($data as $subject) {
+                $subjects[$count] = array(
+                    'versions' => $versions,
+                );
+
+                $material_firsts = array();
+                foreach ($subject['data'] as $trial) {
+                    $phase = strtolower($trial['trialdata']['phase']);
+                    
+                    if (strstr($phase, 'test_consistency') || strstr($phase, 'test_likelihoods')) {
+                        if (strstr($phase, 'test_consistency')) {
+                            $version = 1;
+                        } else {
+                            $version = 2;
+                        }
+                        $subjects[$count]['versions']['Total'][$version]++;
+                        if ($trial['trialdata']['material'] <= 6) {
+                            $subjects[$count]['versions']['Decr'][$version]++;
+                        } else {
+                            $subjects[$count]['versions']['Incr'][$version]++;
+                        }
+
+                        if (false == in_array($trial['trialdata']['material'], $material_firsts)) {
+                            array_push($material_firsts, $trial['trialdata']['material']);
+                            if (false == isset($materials_verions[$trial['trialdata']['material']])) {
+                                $materials_verions[$trial['trialdata']['material']] = $versions['Total'];
+                            }
+                            $materials_verions[$trial['trialdata']['material']][$version]++;
+
+                            if (false == isset($problem_versions[$trial['trialdata']['version']])) {
+                                $problem_versions[$trial['trialdata']['version']] = $versions['Total'];
+                            }
+                            $problem_versions[$trial['trialdata']['version']][$version]++;                                
+                        }                  
+                    }
+                }
+
+                // check versions
+                //var_dump($subjects[$count]['versions']['Decr']);
+                foreach ($subjects[$count]['versions']['Decr'] as $version => $num) {
+                    if (($version == 1 && $num != 6) 
+                        || ($version == 2 && $num != 6) 
+                        ) {
+                            echo $version . ' DECR VERSION ERROR!!<br />';
+                    }
+                }
+                //var_dump($subjects[$count]['versions']['Incr']);
+                foreach ($subjects[$count]['versions']['Incr'] as $version => $num) {
+                    if (($version == 1 && $num != 6) 
+                        || ($version == 2 && $num != 6) 
+                        ) {
+                            echo $version . ' INCR VERSION ERROR!!<br />';
+                    }
+                }
+
+                ++$count;
+            }
+
+            echo count($subjects);
+            echo "<br />";
+
+            /*foreach ($materials_verions as $material => $versions) {
+                foreach ($versions as $version => $num) {
+                    if (($version == 1 && $num != 8) || ($version == 2 && $num != 4)) {
+                            echo 'MATERIAL VERSION ERROR!!<br />';
+                    }
+                }
+            }*/
+
+            var_dump($problem_versions);
+            echo "<br />";
 
             var_dump($materials_verions);
             echo '</pre>';
