@@ -320,7 +320,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 				+ '<hr />'
 				+ 
 			*/
-			html += '<p>The two assertions of the ' + problem_count + '. problem:</p>'
+			html += '<p>The two assertions of problem ' + problem_count + ':</p>'
 				+ '<p style="margin-top: 10px;">'
 					+ '<b>A</b>: ' + getAssertion(inference, getPremiseType(inference), false)
 				+ '</p>'
@@ -410,7 +410,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			+ '<hr />'
 			+ 
 		*/
-		html += '<p>The two assertions of the ' + problem_count + '. problem:</p>'
+		html += '<p>The two assertions of problem ' + problem_count + ':</p>'
 			+ '<p style="margin-top: 10px;">'
 				+ '<b>A</b>: ' + getAssertion(inference, getPremiseType(inference), false)
 			+ '</p>'
@@ -462,7 +462,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 					+ ' You can set both sliders to the same value.'
 				+ '</p>'
 				+ '<hr />'*/
-				+ '<p>The two assertions of the ' + problem_count + '. problem:</p>'
+				+ '<p>The two assertions of problem ' + problem_count + ':</p>'
 				+ '<p style="margin-top: 10px;">'
 					+ '<b>A</b>: ' + getAssertion(inference, getPremiseType(inference), false)
 				+ '</p>'
