@@ -297,74 +297,6 @@ var ReasoningExperiment = function(problems) { //, practice, finish
 		return a + " AND " + add + lowercaseFirstLetter(b) + '.';
 	};
 
-	var trialStep1 = function () {
-		if (problem.length===0) {
-			finish();
-		} else {
-			++problem_count;
-			problem = problems.shift();
-			removeContent();
-			/*d3.select("#content")
-				.append("div")
-				.attr("id","problem_count");
-			var html = '<p style="text-align:center;font-size:20pt;"><b>Problem ' + problem_count + '</b></p>';
-			$("#problem_count").append(html);*/
-
-			d3.select("#content")
-				.append("div")
-				.attr("id","assertions");
-			var html = '';
-			/*
-				'<p>'
-					+ '<b>Please decide for the following assertions whether or not they can both be true at the same time.</b><br />' 
-				+ '</p>'
-				+ '<hr />'
-				+ 
-			*/
-			html += '<p>The two assertions of problem ' + problem_count + ':</p>'
-				+ '<p style="margin-top: 10px;">'
-					+ '<b>A</b>: ' + getAssertion(problem, getPremiseType(problem), false)
-				+ '</p>'
-				+ '<p style="margin-top: 20px;">'
-					+ '<b>B</b>: ' + getAssertion(problem, getConclusionType(problem), true)
-				+ '</p>'
-				+ '<hr />'
-				+'<p>'
-					+ '<div class="col-xs-2"></div><div class="col-xs-8">'
-					+ '<center><button type="button" value="continue" class="btn btn-primary btn-lg btn-estimates response">'
-						+ 'I read the assertions!</span>'
-					+ '</button></center></div><div class="col-xs-2"></div>'
-				+ '</p>';
-			$("#assertions").append(html);	
-			$('.response').click(
-				function () {
-					response = $(this).attr('value');
-					if (response.length > 0) {
-						var rt = new Date().getTime() - timeon;
-						pjpsi.recordTrialData(
-							{
-								'phase':getPhase(1, problem),
-								//'response':response,
-								//'hit':hit,
-								'rt':rt,
-								'material':problem[material_id],
-								'version':problem[material_version]
-							}
-			           	);
-						trialStep2(problem);
-					}
-				}
-			);
-
-			/*setTimeout(
-				function(){
-			  		trialStep2(problem);
-				}, 
-				1500
-			);*/
-		}
-	};
-
 	var block1 = function (problem) {
 		process += 1;
 		++block_count;
@@ -397,7 +329,7 @@ var ReasoningExperiment = function(problems) { //, practice, finish
 			.append("div")
 			.attr("id","block");
 		var html = '<p style="text-align:center;font-size:20pt;"><b>Block ' + number + '</b></p>'
-			+ '<br />'
+			+ '<hr />'
 			+ '<p>' + instruction + '</p>'
 			+ '<hr />'
 			+'<p>'
