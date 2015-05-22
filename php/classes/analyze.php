@@ -64,7 +64,6 @@ class Analyze {
                         }
                         $subjects[$count]['materials'][$trial['trialdata']['material']]['estimates'] = array(
                             'rt' => $trial['trialdata']['rt'],
-                            'a' => $trial['trialdata']['a'],
                             'lowest' => $trial['trialdata']['lowest'],
                             'highest' => $trial['trialdata']['highest'],
                         );
@@ -75,7 +74,7 @@ class Analyze {
                 ++$count;
             }
 
-            echo "ID;material;version;rt;response;rt_estimates;a-prob;lowest-prob;highest-prob<br />";
+            echo "ID;material;first;version;rt;response;rt_estimates;lowest-prob;highest-prob<br />";
             foreach ($subjects as $subject) {
                 foreach ($subject['materials'] as $key => $material) {
                     echo $subject['prolificid'] . ";"
@@ -205,22 +204,10 @@ class Analyze {
             $count = 0;
             foreach ($data as $subject) {
                 $subjects[$count] = array(
-                    'phases' => array(
-                        'instructions' => 0,
-                        'practice_assertions' => 0,
-                        'practice_consistency' => 0,
-                        'practice_likelihoods' => 0,
-                        'test_assertions' => 0,
-                        'test_consistency' => 0,
-                        'test_likelihoods' => 0,
-                        'postquestionnaire' => 0
-                    ),
                     'versions' => $versions,
                 );
                 foreach ($subject['data'] as $trial) {
                     $phase = strtolower($trial['trialdata']['phase']);
-                    
-                    $subjects[$count]['phases'][$phase]++;
 
                     if (strstr($phase, 'test_consistency')) {
                         $subjects[$count]['versions']['Total'][$trial['trialdata']['version']]++;
@@ -299,13 +286,7 @@ class Analyze {
                 }
             }
 
-            $materials_verions = array();
-            $problem_versions = array();
-            $versions = array(
-                'Total' => array('1' => 0, '2' => 0),
-                'Decr' => array('1' => 0, '2' => 0),
-                'Incr' => array('1' => 0, '2' => 0)
-            );
+            $versions = array('1' => 0, '2' => 0);
 
             $subjects = array();
             $count = 0;
@@ -324,43 +305,9 @@ class Analyze {
                         } else {
                             $version = 2;
                         }
-                        $subjects[$count]['versions']['Total'][$version]++;
-                        if ($trial['trialdata']['material'] <= 6) {
-                            $subjects[$count]['versions']['Decr'][$version]++;
-                        } else {
-                            $subjects[$count]['versions']['Incr'][$version]++;
-                        }
-
-                        if (false == in_array($trial['trialdata']['material'], $material_firsts)) {
-                            array_push($material_firsts, $trial['trialdata']['material']);
-                            if (false == isset($materials_verions[$trial['trialdata']['material']])) {
-                                $materials_verions[$trial['trialdata']['material']] = $versions['Total'];
-                            }
-                            $materials_verions[$trial['trialdata']['material']][$version]++;
-
-                            if (false == isset($problem_versions[$trial['trialdata']['version']])) {
-                                $problem_versions[$trial['trialdata']['version']] = $versions['Total'];
-                            }
-                            $problem_versions[$trial['trialdata']['version']][$version]++;                                
-                        }                  
-                    }
-                }
-
-                // check versions
-                //var_dump($subjects[$count]['versions']['Decr']);
-                foreach ($subjects[$count]['versions']['Decr'] as $version => $num) {
-                    if (($version == 1 && $num != 6) 
-                        || ($version == 2 && $num != 6) 
-                        ) {
-                            echo $version . ' DECR VERSION ERROR!!<br />';
-                    }
-                }
-                //var_dump($subjects[$count]['versions']['Incr']);
-                foreach ($subjects[$count]['versions']['Incr'] as $version => $num) {
-                    if (($version == 1 && $num != 6) 
-                        || ($version == 2 && $num != 6) 
-                        ) {
-                            echo $version . ' INCR VERSION ERROR!!<br />';
+                        $subjects[$count]['versions'][$version]++; 
+                        $versions[$version]++;
+                        break;               
                     }
                 }
 
@@ -370,19 +317,7 @@ class Analyze {
             echo count($subjects);
             echo "<br />";
 
-            /*foreach ($materials_verions as $material => $versions) {
-                foreach ($versions as $version => $num) {
-                    if (($version == 1 && $num != 8) || ($version == 2 && $num != 4)) {
-                            echo 'MATERIAL VERSION ERROR!!<br />';
-                    }
-                }
-            }*/
-
-            var_dump($problem_versions);
-            echo "<br />";
-
-            var_dump($materials_verions);
-            echo '</pre>';
+            var_dump($versions);
         }
     }
 

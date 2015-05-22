@@ -139,7 +139,7 @@ var materials = [
 var task_num = materials.length;
 
 // balancing
-var makeBalancing = function (start, current, num, versions, first_question) {
+var makeBalancing = function (start, current, num, versions) { //, first_question
 	//console.log(current)
 	var version_count = 0;
 	var version = -1;
@@ -156,7 +156,7 @@ var makeBalancing = function (start, current, num, versions, first_question) {
 			}
 		}
 		materials[current][material_version] = version + 1;
-		materials[current][material_starting_question] = first_question[version];
+		//materials[current][material_starting_question] = first_question[version];
 		//console.log(current+" - "+materials[current][material_version]+" - "+materials[current][material_starting_question])
 		++counter;
 		++current;
@@ -169,7 +169,7 @@ var makeBalancing = function (start, current, num, versions, first_question) {
 // Problem versions
 var current = mycounterbalance % (materials.length/2);
 
-first_question1 = _.shuffle([1,2,1,2,1,2]);
+/*first_question1 = _.shuffle([1,2,1,2,1,2]);
 first_question2 = [];
 for (var i = 0; i <= 5; ++i) {
 	if (first_question1[i] == 1) {
@@ -177,13 +177,10 @@ for (var i = 0; i <= 5; ++i) {
 	} else {
 		first_question2[i] = 1;
 	}
-}
+}*/
 
-makeBalancing(0, current, materials.length/2, [1, 1, 1, 1, 1, 1], first_question1);
-makeBalancing(materials.length/2, current+(materials.length/2), materials.length, [1, 1, 1, 1, 1, 1], first_question2);
-// Starting question
-//var current = mycondition % materials.length;
-//makeBalancing(0, current, materials.length, [6, 6], material_starting_question);
+makeBalancing(0, current, materials.length/2, [1, 1, 1, 1, 1, 1]); // , first_question1
+makeBalancing(materials.length/2, current+(materials.length/2), materials.length, [1, 1, 1, 1, 1, 1]); // , first_question2
 
 materials = _.shuffle(_.shuffle(materials));
 materials.push(practice_materials[0]);
@@ -201,15 +198,19 @@ materials.reverse();
 /********************
 * REASONING TASK    *
 ********************/
-var ReasoningExperiment = function(inferences) { //, practice, finish
+var ReasoningExperiment = function(problems) { //, practice, finish
 
 	var timeon = false; // time needed to provide estimates of the probabilities
 	    //listening = false;
 
+	var process = 0;
+
+	var block_count = 0;
+
 	var problem_count = 0;
 
-	var getPremiseType = function (inference) {
-		switch (inference[material_version]) {
+	var getPremiseType = function (problem) {
+		switch (problem[material_version]) {
 			case 1:
 				return "a-ore-b";
 			case 2:
@@ -227,8 +228,8 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		}
 	};
 
-	var getConclusionType = function (inference) {
-		switch (inference[material_version]) {
+	var getConclusionType = function (problem) {
+		switch (problem[material_version]) {
 			case 1:
 				return "a-and-nb";
 			case 2:
@@ -246,34 +247,34 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		}
 	};
 
-	var getAssertion = function (inference, which, is_conclusion) {
+	var getAssertion = function (problem, which, is_conclusion) {
 		switch (which) {
 			case "a-or-b":
-				assertion = getDisjunction(inference[material_a], inference[material_b], "I");
+				assertion = getDisjunction(problem[material_a], problem[material_b], "I");
 				break;
 			case "a-ore-b":
-				assertion = getDisjunction(inference[material_a], inference[material_b], "E");
+				assertion = getDisjunction(problem[material_a], problem[material_b], "E");
 				break;
 			case "a-or-b-e":
-				assertion = getDisjunction(inference[material_a], inference[material_b], "E2");
+				assertion = getDisjunction(problem[material_a], problem[material_b], "E2");
 				break;				
 			case "na-or-nb":
-				assertion = getDisjunction(inference[material_na], inference[material_nb], null);
+				assertion = getDisjunction(problem[material_na], problem[material_nb], null);
 				break;
 			case "a-ore-nb":
-				assertion = getDisjunction(inference[material_a], inference[material_nb], "E");
+				assertion = getDisjunction(problem[material_a], problem[material_nb], "E");
 				break;
 			case "na-ore-b":
-				assertion = getDisjunction(inference[material_na], inference[material_b], "E");
+				assertion = getDisjunction(problem[material_na], problem[material_b], "E");
 				break;
 			case "a-and-b":
-				assertion = getConjunction(inference[material_a], inference[material_b]);
+				assertion = getConjunction(problem[material_a], problem[material_b]);
 				break;
 			case "a-and-nb":
-				assertion = getConjunction(inference[material_a], inference[material_nb]);
+				assertion = getConjunction(problem[material_a], problem[material_nb]);
 				break;				
 			case "na-and-nb":
-				assertion = getConjunction(inference[material_na], inference[material_nb]);
+				assertion = getConjunction(problem[material_na], problem[material_nb]);
 				break;
 		}	
 		return assertion;
@@ -297,11 +298,11 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	};
 
 	var trialStep1 = function () {
-		if (inferences.length===0) {
+		if (problem.length===0) {
 			finish();
 		} else {
 			++problem_count;
-			inference = inferences.shift();
+			problem = problems.shift();
 			removeContent();
 			/*d3.select("#content")
 				.append("div")
@@ -322,10 +323,10 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 			*/
 			html += '<p>The two assertions of problem ' + problem_count + ':</p>'
 				+ '<p style="margin-top: 10px;">'
-					+ '<b>A</b>: ' + getAssertion(inference, getPremiseType(inference), false)
+					+ '<b>A</b>: ' + getAssertion(problem, getPremiseType(problem), false)
 				+ '</p>'
 				+ '<p style="margin-top: 20px;">'
-					+ '<b>B</b>: ' + getAssertion(inference, getConclusionType(inference), true)
+					+ '<b>B</b>: ' + getAssertion(problem, getConclusionType(problem), true)
 				+ '</p>'
 				+ '<hr />'
 				+'<p>'
@@ -342,90 +343,71 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 						var rt = new Date().getTime() - timeon;
 						pjpsi.recordTrialData(
 							{
-								'phase':getPhase(1, inference),
+								'phase':getPhase(1, problem),
 								//'response':response,
 								//'hit':hit,
 								'rt':rt,
-								'material':inference[material_id],
-								'version':inference[material_version]
+								'material':problem[material_id],
+								'version':problem[material_version]
 							}
 			           	);
-						trialStep2(inference);
+						trialStep2(problem);
 					}
 				}
 			);
 
 			/*setTimeout(
 				function(){
-			  		trialStep2(inference);
+			  		trialStep2(problem);
 				}, 
 				1500
 			);*/
 		}
 	};
 
-	var trialStep2 = function (inference) {
-		timeon = new Date().getTime();
-		removeContent();
-		//listening = true;
-		$(document).scrollTop(0);
-		if (inference[material_starting_question] == 1) {
-			showQuestion1(
-				inference,
-				function () {
-					trialStep3(inference, showQuestion2);
-				}
-			);
-		} else {
-			showQuestion2(
-				inference,
-				function () {
-					trialStep3(inference, showQuestion1);
-				}
-			);
-		}
-	};
-
-	var trialStep3 = function (inference, callback) {
-		timeon = new Date().getTime();
-		removeContent();
-		$(document).scrollTop(0);
-		callback(
-			inference,
+	var block1 = function (problem) {
+		process += 1;
+		++block_count;
+		problem_count = 0;
+		beginBlock(
+			block_count,
+			'In this block your task will be to determine whether both assertions of a particular problem could be true at the same time.',
 			function () {
-				trialStep1();
+				trialStep(showQuestion1);
 			}
 		);
 	};
 
-	var showQuestion1 = function(inference, callback) {
+	var block2 = function () {
+		process += 2;
+		++block_count;
+		problem_count = 0;
+		beginBlock(
+			block_count,
+			'In this block you\'ll be provided with a given probability for the first assertion of a problem and you\'ll have to estimate probabilities of the second assertion.',
+			function () {
+				trialStep(showQuestion2);
+			}
+		);
+	};
+
+	var beginBlock = function (number, instruction, callback) {
+		removeContent();
 		d3.select("#content")
 			.append("div")
-			.attr("id","assertions");
-		var html = '';
-		/*
-			'<p>'
-				+ '<b>Please decide for the following assertions whether or not they can both be true at the same time.</b><br />' 
-			+ '</p>'
-			+ '<hr />'
-			+ 
-		*/
-		html += '<p>The two assertions of problem ' + problem_count + ':</p>'
-			+ '<p style="margin-top: 10px;">'
-				+ '<b>A</b>: ' + getAssertion(inference, getPremiseType(inference), false)
-			+ '</p>'
-			+ '<p style="margin-top: 20px;">'
-				+ '<b>B</b>: ' + getAssertion(inference, getConclusionType(inference), true)
-			+ '</p>'
+			.attr("id","block");
+		var html = '<p style="text-align:center;font-size:20pt;"><b>Block ' + number + '</b></p>'
+			+ '<br />'
+			+ '<p>' + instruction + '</p>'
 			+ '<hr />'
 			+'<p>'
-				+ '<div style="text-align:center;">Please decide:<br /><b>Could both of these assertions be true at the same time?</b></div>'
-				+ '<div class="col-xs-2"></div><div class="col-xs-8"><center>'
-					+ '<button type="button" value="yes" class="btn btn-primary btn-lg btn-yes response">Yes</button>'
-					+ '<button type="button" value="no" class="btn btn-primary btn-lg btn-no response">No</button>'
-				+ '</center></div><div class="col-xs-2"></div>'
+				+ '<div class="col-xs-2"></div><div class="col-xs-8">'
+				+ '<center><button type="button" value="continue" class="btn btn-primary btn-lg btn-estimates response">'
+					+ 'Start block!</span>'
+				+ '</button></center></div><div class="col-xs-2"></div>'
 			+ '</p>';
-		$("#assertions").append(html);
+		$("#block").append(html);
+		timeon = new Date().getTime();
 		$('.response').click(
 			function () {
 				response = $(this).attr('value');
@@ -433,12 +415,94 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 					var rt = new Date().getTime() - timeon;
 					pjpsi.recordTrialData(
 						{
-							'phase':getPhase(2, inference),
+							'phase':'START_BLOCK',
+							'rt':rt
+						}
+		           	);
+					callback();
+				}
+			}
+		);			
+	};
+
+	var trialStep = function (question) {
+		if (problems.length == problem_count) {
+			if (process == 2) {
+				block1();
+			} else if (process == 1) {
+				block2();
+			} else if (process == 3) {
+				finish();
+			}
+		} else {
+			problem = problems[problem_count];
+			++problem_count;
+			removeContent();
+			$(document).scrollTop(0);
+			//listening = true;
+
+			d3.select("#content")
+				.append("div")
+				.attr("id","assertions");
+			var html = '<p>The two assertions of problem ' + problem_count + ':</p>'
+				+ '<p style="margin-top: 10px;">'
+					+ '<b>A</b>: ' + getAssertion(problem, getPremiseType(problem), false)
+				+ '</p>'
+				+ '<p style="margin-top: 20px;">'
+					+ '<b>B</b>: ' + getAssertion(problem, getConclusionType(problem), true)
+				+ '</p>'
+				+ '<hr />'
+				+ '<div id="read">'
+					+ '<div class="col-xs-2"></div><div class="col-xs-8">'
+					+ '<center><button id="btn_read" type="button" value="continue" class="btn btn-primary btn-lg btn-estimates">'
+						+ 'I read the assertions!</span>'
+					+ '</button></center></div><div class="col-xs-2"></div>'
+				+ '</div>'				;
+			$("#assertions").append(html);
+
+			timeon = new Date().getTime();
+			$('#btn_read').click(
+				function () {
+					$('#read').remove();
+					var rt = new Date().getTime() - timeon;
+					pjpsi.recordTrialData(
+						{
+							'phase':getPhase(1, problem),
+							'rt':rt,
+							'material':problem[material_id],
+							'version':problem[material_version]
+						}
+		           	);
+					question(problem, function () { trialStep(question); } );
+				}
+			);
+			
+		}
+	}
+
+	var showQuestion1 = function(problem, callback) {
+		var html = '<p>'
+				+ '<div style="text-align:center;">Please decide:<br /><b>Could both of these assertions be true at the same time?</b></div>'
+				+ '<div class="col-xs-2"></div><div class="col-xs-8"><center>'
+					+ '<button type="button" value="yes" class="btn btn-primary btn-lg btn-yes response">Yes</button>'
+					+ '<button type="button" value="no" class="btn btn-primary btn-lg btn-no response">No</button>'
+				+ '</center></div><div class="col-xs-2"></div>'
+			+ '</p>';
+		$("#assertions").append(html);
+		timeon = new Date().getTime();
+		$('.response').click(
+			function () {
+				response = $(this).attr('value');
+				if (response.length > 0) {
+					var rt = new Date().getTime() - timeon;
+					pjpsi.recordTrialData(
+						{
+							'phase':getPhase(2, problem),
 							//'response':response,
 							//'hit':hit,
 							'rt':rt,
-							'material':inference[material_id],
-							'version':inference[material_version],
+							'material':problem[material_id],
+							'version':problem[material_version],
 							'response':response 
 						}
 		           	);
@@ -448,30 +512,10 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		);
 	};
 
-	var showQuestion2 = function(inference, callback) {
-		timeon = new Date().getTime();
-		removeContent();
-		$(document).scrollTop(0);
-		//listening = true;
-		var prob = _.shuffle(_.shuffle([85, 90, 95]));
-		var html = '';
-		html += '<div>'
-				/*+ '<p>'
-					+ '<b>Given this probability for A, what is the lowest probability that you’d assign to B, and what is the highest probability that you’d assign to B?</b>'
-					+ '<br />Choose a number from 0 (no chance at all) to 100 (completely certain) for the lowest and the highest value by using the sliders.'
-					+ ' You can set both sliders to the same value.'
-				+ '</p>'
-				+ '<hr />'*/
-				+ '<p>The two assertions of problem ' + problem_count + ':</p>'
-				+ '<p style="margin-top: 10px;">'
-					+ '<b>A</b>: ' + getAssertion(inference, getPremiseType(inference), false)
-				+ '</p>'
-				+ '<p style="margin-top: 20px;">'
-					+ '<b>B</b>: ' + getAssertion(inference, getConclusionType(inference), true)
-				+ '</p>'
-				+ '<hr />'
-				+ '<p>'
-					+ 'Suppose that assertion <b>A</b> has a probability of <b>' + prob[0] + '%</b>:<br />'
+	var showQuestion2 = function(problem, callback) {
+		var prob = 90;
+		var html = '<p>'
+					+ 'Suppose that assertion <b>A</b> has a probability of <b>' + prob + '%</b>:<br />'
 					+ 'What is the lowest and highest probability that you would assign to assertion <b>B</b>?<br />'					
 				+ '</p>'
 				+ '<p>'
@@ -479,13 +523,15 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 					+ ' <br />You can set both sliders to the same value, if you think that this is appropriate in this case.'
 				+ '</p>'
 				+ '<div id="sliders"></div>'
-				+ '<div class="col-xs-2"></div><div class="col-xs-8">'
-				+ '<center><button type="button" value="continue" class="btn btn-primary btn-lg btn-estimates response">'
-					+ 'Continue <span class="glyphicon glyphicon-arrow-right"></span>'
-				+ '</button></center></div><div class="col-xs-2"></div>'
-			+ ' </div>';		
-		$('#content').html(html);
-		createSliders(inference);
+				+ '<div>'
+					+ '<div class="col-xs-2"></div><div class="col-xs-8">'
+					+ '<center><button type="button" value="continue" class="btn btn-primary btn-lg btn-estimates response">'
+						+ 'Continue <span class="glyphicon glyphicon-arrow-right"></span>'
+					+ '</button></center></div><div class="col-xs-2"></div>'
+				+ ' </div>';		
+		$('#assertions').append(html);
+		createSliders(problem);
+		timeon = new Date().getTime();
 		$(".response").click(
 			function () {
 				response = $(this).attr('value');
@@ -496,13 +542,11 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 					var rt = new Date().getTime() - timeon;
 					pjpsi.recordTrialData(
 						{
-							'phase':getPhase(3, inference),
-							//'response':response,
+							'phase':getPhase(3, problem),
 							//'hit':hit,
 							'rt':rt,
-							'material':inference[material_id],
-							'version':inference[material_version],
-							'a':prob[0],
+							'material':problem[material_id],
+							'version':problem[material_version],
 							'lowest':parseInt($('#lowest-value').html()), 
 							'highest':parseInt($('#highest-value').html()),
 						}
@@ -537,7 +581,7 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		);		
 	};
 
-	var createSliders = function (inference) {
+	var createSliders = function (problem) {
 		var sliderModified = function  (value) {
 			if (value != 50) {
 				var id = $(this).attr('id');
@@ -589,24 +633,24 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 		);
 	};	
 
-	var getPhase = function (step, inference) {
+	var getPhase = function (step, problem) {
 		var phase = ""
 		switch (step) {
 			case 1:
 				phase = "TEST_ASSERTIONS";
-				if (inference[material_id] > task_num) {
+				if (problem[material_id] > task_num) {
 					phase = "PRACTICE_ASSERTIONS";
 				}
 				break;				
 			case 2:
 				phase = "TEST_CONSISTENCY";
-				if (inference[material_id] > task_num) {
+				if (problem[material_id] > task_num) {
 					phase = "PRACTICE_CONSISTENCY";
 				}
 				break;			
 			case 3:
 				phase = "TEST_LIKELIHOODS";
-				if (inference[material_id] > task_num) {
+				if (problem[material_id] > task_num) {
 					phase = "PRACTICE_LIKELIHOODS";
 				}
 				break;				
@@ -635,7 +679,11 @@ var ReasoningExperiment = function(inferences) { //, practice, finish
 	//$("body").focus().keydown(response_handler); 
 
 	// Start the test
-	trialStep1();
+	if (mycondition == 0) {
+		block1();
+	} else {
+		block2();
+	}
 };
 
 
@@ -710,7 +758,7 @@ $(window).load(
 	function () {
 	    pjpsi.doInstructions(
 	    	instructionPages, // a list of pages you want to display in sequence
-	    	function() { currentview = new ReasoningExperiment(materials); } // what you want to do when you are done with instructions
+	    	function () { currentview = new ReasoningExperiment(materials); } // what you want to do when you are done with instructions
 	    );
 	}
 );
