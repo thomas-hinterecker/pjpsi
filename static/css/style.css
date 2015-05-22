@@ -88,10 +88,6 @@ strong {
   margin-left: 50px;
 }
 
-#premise, .conclusion, #continue {
-  /*font-size: 18px;*/
-}
-
 #sliders {
   margin-top: 25px;
 }
@@ -106,6 +102,14 @@ strong {
 
 .slider-value {
   color: red;
+}
+
+.noUi-handle-lower {
+  background-color: #999 !important;
+}
+
+.noUi-handle-upper {
+  background-color: #333 !important;
 }
 
 .btn-estimates {

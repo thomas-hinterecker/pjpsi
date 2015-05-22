@@ -451,8 +451,8 @@ var ReasoningExperiment = function(problems) { //, practice, finish
 					+ 'What is the lowest and highest probability that you would assign to assertion <b>B</b>?<br />'					
 				+ '</p>'
 				+ '<p>'
-					+ 'Choose a number from 0 (no chance at all) to 100 (completely certain) for both sliders.'
-					+ ' <br />You can set both sliders to the same value, if you think that this is appropriate in this case.'
+					+ 'Choose a number from 0 (no chance at all) to 100 (completely certain) for both slider handles.'
+					+ ' <br />You can set both handles to the same value, if you think that this is appropriate in this case.'
 				+ '</p>'
 				+ '<div id="sliders"></div>'
 				+ '<div>'
@@ -479,8 +479,8 @@ var ReasoningExperiment = function(problems) { //, practice, finish
 							'rt':rt,
 							'material':problem[material_id],
 							'version':problem[material_version],
-							'lowest':parseInt($('#lowest-value').html()), 
-							'highest':parseInt($('#highest-value').html()),
+							'lowest':parseInt($('#b-lower-value').html()), 
+							'highest':parseInt($('#b-upper-value').html()),
 						}
 		            );
 					callback();
@@ -494,50 +494,71 @@ var ReasoningExperiment = function(problems) { //, practice, finish
 	var checkSliderModified = function (types) {
 		var val = true;
 		if (mode != 'debug') {
-			_.each(
+			/*_.each(
 				types, 
 				function (item) {
-					if ($('#' + item + '-value-modified').val() == "0") {
+					if ($('.slider-handle-modified').val() == "0") {
 						val = false;
 					}
 				}
-			);	
+			);*/
+			console.log($('#b-lower-value-modified').val());
+			console.log($('#b-upper-value-modified').val());
+			if ($('#b-lower-value-modified').val() == "0") {
+				val = false;
+			}
+			if ($('#b-upper-value-modified').val() == "0") {
+				val = false;
+			}			
 		}
 		return val;
 	};
 
 	var sliderAlert = function () {
 		alert(
-			"Please set a value for each slider."
-			+ "\n\nIf you want to set a slider to 50%, set the slider to any value first and then back to 50%."
+			"Please modify each handle."
+			+ "\n\nIf you want to set both handles to their initial value, move them to any value and then back to the initial value."
 		);		
 	};
 
 	var createSliders = function (problem) {
-		var sliderModified = function  (value) {
-			if (value != 50) {
+		var lowerHandleModified = function  (value) {
+			if (value != 48) {
 				var id = $(this).attr('id');
-				$('#' + id + '-value-modified').val(1);
-				$('#' + id + '-value-modified-sign').html('');
+				var handle = 'lower';	
+				$('#' + id + '-' + handle + '-value-modified').val(1);
+				$('#' + id + '-' + handle + '-value-modified-sign').html('');
 			}
 		};
+		var upperHandleModified = function  (value) {
+			if (value != 52) {
+				var id = $(this).attr('id');
+				var handle = 'upper';	
+				$('#' + id + '-' + handle + '-value-modified').val(1);
+				$('#' + id + '-' + handle + '-value-modified-sign').html('');
+			}
+		};		
 		var range_all_sliders = {
 			'min': [   0 ], '10%': [  10 ], '20%': [  20 ], '30%': [  30 ], '40%': [  40 ], '50%': [  50 ], '60%': [  60 ], '70%': [  70 ], '80%': [  80 ], '90%': [  90 ], 'max': [ 100 ]
 		};
 		var slider_count = 1;
-		_.each(
+		var shortcut = 'b';
+		/*_.each(
 			_.shuffle(['lowest', 'highest']), 
-			function (shortcut) {
+			function (shortcut) {*/
 				$("#sliders").append(
 					'<div class="text-and-slider">' 
-					+  uppercaseFirstLetter(shortcut) + ' probability of assertion <b>B</b>:'
-					+ '<br /><span id="' + shortcut + '-value" class="slider-value"></span> <span class="slider-value">chance</span> <span id="'  + shortcut + '-value-modified-sign" class="slider-value"> - Slider not modified yet!</span>'
-					+ '<div id="'  + shortcut + '" class="slider"></div><input id="'  + shortcut + '-value-modified" value="0" type="hidden" /><br /><br />'
+					+ 'Probabilities of assertion <b>B</b>:'
+					+ '<br />Lowest probability (light grey handle): <span id="' + shortcut + '-lower-value" class="slider-value"></span> <span class="slider-value">chance</span> <span id="'  + shortcut + '-lower-value-modified-sign" class="slider-value"> - Handle not modified yet!</span>'
+					+ '<input id="'  + shortcut + '-lower-value-modified" value="0" type="hidden" />'					
+					+ '<br />Highest probability (dark grey handle): <span id="' + shortcut + '-upper-value" class="slider-value"></span> <span class="slider-value">chance</span> <span id="'  + shortcut + '-upper-value-modified-sign" class="slider-value"> - Handle not modified yet!</span>'
+					+ '<input id="'  + shortcut + '-upper-value-modified" value="0" type="hidden" />'					
+					+ '<div id="'  + shortcut + '" class="slider"></div><br /><br />'
 					+ '</div>'
 					+ '<hr />'
 				);
 				$('#' + shortcut).noUiSlider({
-					start: [ 50 ],
+					start: [ 48, 52 ],
 					range: range_all_sliders,
 					format: wNumb({
 						decimals: 0,
@@ -552,17 +573,12 @@ var ReasoningExperiment = function(problems) { //, practice, finish
 					}
 				});	
 				// Links
-				$('#' + shortcut).Link().to($('#' + shortcut + '-value'));	
-				$('#' + shortcut).Link().to(
-					sliderModified, 
-					null, 
-					{
-						to: parseInt,
-						from: Number
-					}
-				);	
-			}
-		);
+				$('#' + shortcut).Link('lower').to($('#' + shortcut + '-lower-value'));	
+				$('#' + shortcut).Link('upper').to($('#' + shortcut + '-upper-value'));
+				$('#' + shortcut).Link('lower').to(lowerHandleModified, null, { to: parseInt, from: Number });
+				$('#' + shortcut).Link('upper').to(upperHandleModified, null, { to: parseInt, from: Number });
+			/*}
+		);*/
 	};	
 
 	var getPhase = function (step, problem) {
