@@ -33,11 +33,13 @@ class Analyze {
 
                     $phase = strtolower($trial['trialdata']['phase']);
 
-                    if (strstr($phase, 'consistency') || strstr($phase, 'likelihoods')) {
+                    if (strstr($phase, 'assertions') || strstr($phase, 'consistency') || strstr($phase, 'likelihoods')) {
                         if (false == isset($subjects[$count]['materials'][$trial['trialdata']['material']])) {
                             $subjects[$count]['materials'][$trial['trialdata']['material']] = array(
                                 'first' => 0,
                                 'version' => '',
+                                'readtime1' => '',
+                                'readtime2' => '',
                                 'rt' => '',
                                 'response' => '',
                                 'estimates' => array(),
@@ -45,6 +47,13 @@ class Analyze {
                         }
                     }
 
+                    if (strstr($phase, 'assertions')) {
+                        if ($subjects[$count]['materials'][$trial['trialdata']['material']]['readtime1'] == '') {
+                            $subjects[$count]['materials'][$trial['trialdata']['material']]['readtime1'] = $trial['trialdata']['rt'];
+                        } else {
+                            $subjects[$count]['materials'][$trial['trialdata']['material']]['readtime2'] = $trial['trialdata']['rt'];
+                        }
+                    }
                     if (strstr($phase, 'consistency')) {
                         if ($trial['trialdata']['response'] == "yes") {
                             $response = 1;
@@ -74,7 +83,7 @@ class Analyze {
                 ++$count;
             }
 
-            echo "ID;material;first;version;rt;response;rt_estimates;lowest-prob;highest-prob<br />";
+            echo "ID;material;first;version;readtime1;readtime2;rt;response;rt_estimates;lowest-prob;highest-prob<br />";
             foreach ($subjects as $subject) {
                 foreach ($subject['materials'] as $key => $material) {
                     echo $subject['prolificid'] . ";"
