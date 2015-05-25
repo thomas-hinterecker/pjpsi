@@ -389,7 +389,7 @@ var ReasoningExperiment = function(problems) { //, practice, finish
 					+ '<center><button id="btn_read" type="button" value="continue" class="btn btn-primary btn-lg btn-estimates">'
 						+ 'I read the assertions!</span>'
 					+ '</button></center></div><div class="col-xs-2"></div>'
-				+ '</div>'				;
+				+ '</div>';
 			$("#assertions").append(html);
 
 			timeon = new Date().getTime();
@@ -408,7 +408,6 @@ var ReasoningExperiment = function(problems) { //, practice, finish
 					question(problem, function () { trialStep(question); } );
 				}
 			);
-			
 		}
 	}
 
