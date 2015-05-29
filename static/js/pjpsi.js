@@ -265,7 +265,7 @@ var PJPsi = function(prolificid, serverLoc, mode) { // serverLoc
 			// Provide opt-out 
 			$(window).on(
 				"beforeunload", 
-				function() {
+				function () {
 					self.saveData();
 					$.ajax(
 						serverLoc + "/quitter", 
@@ -293,7 +293,7 @@ var PJPsi = function(prolificid, serverLoc, mode) { // serverLoc
 	self.complete = function() {
 		self.teardownTask();
 		// save data one last time here?
-		window.location.href = self.taskdata.serverLoc + '/complete/' + self.taskdata.id;
+		window.location.href = self.taskdata.serverLoc + '/debriefing/' + self.taskdata.id;
 	}
 
 	self.doInstructions = function(pages, callback) {

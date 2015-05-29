@@ -63,61 +63,56 @@ strong {
 #trial {
   margin: 0 auto;
   width: 800px;
-}
-
-#headline {
-  height: 50px;
-}
-
-#query {
-  font-size: 18px;
-  margin-top: 30px;
-  color: black;
+  text-align: center;
 }
 
 .question {
   margin-bottom: 30px;
 }
 
-.btn-yes {
-  margin-top: 15px;
-  /*margin-left: 175px;*/
-}
-.btn-no {
-  margin-top: 15px;
-  margin-left: 50px;
-}
-
-#sliders {
-  margin-top: 25px;
-}
-
-.text-and-slider {
-  margin-top: 10px;
-}
-
-.slider {
-  margin-top: 10px;
-}
-
-.slider-value {
-  color: red;
-}
-
-.noUi-handle-lower {
-  background-color: #999 !important;
-}
-
-.noUi-handle-upper {
-  background-color: #333 !important;
-}
-
-.btn-estimates {
-  margin-top: 10px;
-}
-
 /* errors */
 #error img {
   padding-right: 10px;
   padding-top: 15px;
+}
+
+/* Debriefing form */
+
+#debriefingtext {
+  margin: 0 auto;
+  padding: 10px 20px;
+  font-size: 90%;
+  text-align: justify;
+}
+#affirmationbox {
+  position: relative;
+  margin:  0 auto;
+  border: 1px dotted white; 
+  padding: 10px 20px;
+  vertical-align: middle;
+}
+#affirmationbox p {
+  text-align: left;
+  font-style: italic;
+}
+#affirmationbox  table {
+  border-spacing: 20px;
+}
+#affirmationbox  td {
+  vertical-align: middle;
+  font-size: 100%;
+  color: black;
+  height: 50px;
+  cursor: pointer;
+}
+#affirmative {
+  background: white;
+  overflow: hidden;
+  font-weight: bold;
+  width: 10em;
+}
+#negative {
+  background: white;
+  font-size: 100%;
+  width: 25em;
 }

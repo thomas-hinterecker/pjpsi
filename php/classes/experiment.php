@@ -4,8 +4,12 @@ use phpbrowscap\Browscap;
 
 class Experiment {
 
+    /**
+     * 
+     *
+     */
     function beforeRoute ($f3, $params) {
-        if (strstr($params[0], 'error') == false && strstr($params[0], 'complete') == false) {
+        if (strstr($params[0], 'exp') == true || strstr($params[0], 'consent') == true) {
             // if prolificid is set, check whether prolificid already exists in the database. If so, then load error.html
             if (isset($params['prolificid'])) {
                 $prolificid = $params['prolificid'];
@@ -38,10 +42,18 @@ class Experiment {
         }
     }
 
+    /**
+     * Start page. Retrieve prolific id.
+     *
+     */
     function index ($f3) {
         echo Template::instance()->render('templates/start.html');
     }
 
+    /**
+     * Show the consent form
+     *
+     */
     function consent ($f3, $params) {
         $prolificid = $params['prolificid'];
         $this->_createSubject($f3, $prolificid);
@@ -49,13 +61,17 @@ class Experiment {
         echo Template::instance()->render('templates/consent.html');
     }
 
+    /**
+     * Run the experiment.
+     *
+     */
     function exp ($f3, $params) {
         $prolificid = $params['prolificid'];
         if (empty($prolificid) == false && $f3->get('subject.exists') == true) {
             if ($f3->get('subject.condition') == null && $f3->get('subject.counterbalance') == null) {
-                // condition and counterbalance
+                // Condition and counterbalance
                 $f3->get('DB')->exec("START TRANSACTION");
-                list($condition, $counterbalance) = $this->_findGroups($f3, $prolificid);
+                list($condition, $counterbalance) = $this->_assign($f3, $prolificid);
                 $f3->get('DB')->exec(
                     'UPDATE data SET `condition`=:condition, `counterbalance`=:counterbalance, `status`=:status WHERE id=:id',
                     array(
@@ -90,7 +106,11 @@ class Experiment {
         }
     }
 
-    function complete ($f3, $params) {
+    /**
+     * Debriefing the subject
+     *
+     */
+    function debriefing ($f3, $params) {
         $prolificid = $params['prolificid'];
         if (empty($prolificid) == false) {
             $result = $f3->get('DB')->exec(
@@ -98,16 +118,13 @@ class Experiment {
                 $prolificid
             );
             if ($f3->get('mode') == 'debug' || $result[0]['exists'] == true) {
-                if ($f3->get('mode') == 'debug' 
-                    || $result[0]['status'] == $f3->get('STATUS.STARTED')
-                    || $result[0]['status'] == $f3->get('STATUS.QUITEARLY')) {
-                    $f3->set('prolificid', $prolificid);
+                if ($f3->get('mode') == 'debug' || ($result[0]['status'] >= $f3->get('STATUS.STARTED') && $result[0]['status'] <= $f3->get('STATUS.COMPLETED'))) {
+                    $f3->set('subject.prolificid', $prolificid);
 
                     $this->_updateDate($f3, $prolificid, date('Y-m-d h:i:s', time()), 'end');
                     $this->_updateStatus($f3, $prolificid, $f3->get('STATUS.COMPLETED'));
                     
-                    $f3->set('completionurl', $f3->get('prolific_completion_url'));
-                    echo Template::instance()->render('templates/complete.html');
+                    echo Template::instance()->render('templates/debriefing.html');
                     return;
                 } else {
                     $f3->reroute('@errorpage(@errornum=1010,@prolificid=' . $prolificid . ')');
@@ -118,6 +135,41 @@ class Experiment {
         $f3->reroute('@errorpage(@errornum=1000,@prolificid=' . $prolificid . ')');
     }
 
+    /**
+     * If the subject completed the experiment and was debriefed, show him the completion url.
+     *
+     */
+    function complete ($f3, $params) {
+        if ($f3->get('POST.prolificid')) {
+            $prolificid = $f3->get('POST.prolificid');
+            if (empty($prolificid) == false) {
+                $result = $f3->get('DB')->exec(
+                    'SELECT count(1) AS `exists`, `status` FROM data WHERE prolificid=?', 
+                    $prolificid
+                );
+                if ($f3->get('mode') == 'debug' || $result[0]['exists'] == true) {
+                    if ($f3->get('mode') == 'debug' || ($result[0]['status'] >= $f3->get('STATUS.COMPLETED') && $result[0]['status'] <= $f3->get('STATUS.CREDITED'))) {
+                        $f3->set('subject.prolificid', $prolificid);
+                        if ((boolean) $f3->get('POST.agree') == true) {
+                            $this->_updateStatus($f3, $prolificid, $f3->get('STATUS.SUBMITTED'));
+                        }
+                        $f3->set('completionurl', $f3->get('prolific_completion_url'));
+                        echo Template::instance()->render('templates/complete.html');
+                        return;
+                    } else {
+                        $f3->reroute('@errorpage(@errornum=1010,@prolificid=' . $prolificid . ')');
+                        return;
+                    }
+                }
+            }
+        }
+        $f3->reroute('@errorpage(@errornum=1000)');
+    }
+
+    /**
+     * If the subject started the experiment (after reading instructions), set the status to STATUS.STARTED.
+     *
+     */
     function inexp ($f3, $params) {
         if ($f3->get('POST.prolificid')) {
             $this->_updateDate($f3, $f3->get('POST.prolificid'), date('Y-m-d h:i:s', time()));
@@ -126,6 +178,10 @@ class Experiment {
         }
     }
 
+    /**
+     * If the subject quitted the experiment, set the status to STATUS.QUITEARLY.
+     *
+     */
     function quitter ($f3, $params) {
         if ($f3->get('POST.prolificid')) {
             $this->_updateStatus($f3, $f3->get('POST.prolificid'), $f3->get('STATUS.QUITEARLY'));
@@ -133,6 +189,10 @@ class Experiment {
         }
     }
 
+    /**
+     * Show error page.
+     *
+     */
     function error ($f3, $params) {
         $f3->set('errornum', $params['errornum']);
         $f3->set('contact_address', $f3->get('contact_email_on_error'));
@@ -142,6 +202,10 @@ class Experiment {
         echo Template::instance()->render('templates/error.html');
     }
 
+    /**
+     * Create a entry in the DB for the subject.
+     *
+     */
     function _createSubject ($f3, $prolificid) {
         // add subject to DB but only if not yet in DB
         if ($f3->get('subject.exists') == false) {
@@ -183,6 +247,10 @@ class Experiment {
         }      
     }
 
+    /**
+     * Update subject's begin, beginexp or end date.
+     *
+     */
     function _updateDate ($f3, $prolificid, $date, $which = 'beginexp') {
         if (strlen($prolificid) > 0) {
             $f3->get('DB')->exec(
@@ -195,6 +263,10 @@ class Experiment {
         }
     }
 
+    /**
+     * Update subject's status
+     *
+     */
     function _updateStatus ($f3, $prolificid, $status) {
         if (strlen($prolificid) > 0) {
             $f3->get('DB')->exec(
@@ -207,17 +279,21 @@ class Experiment {
         }
     }
 
-    function _findGroups ($f3, $prolificid) {
+    /**
+     * Assign subject to condition and counterbalance.
+     *
+     */
+    function _assign ($f3, $prolificid) {
         $conditions = array_fill(0, (int) $f3->get('num_conds'), 0);
         $counterbalances = array_fill(0, (int) $f3->get('num_counters'), 0);
 
-        // get the already used conditions and balances
+        // Get the already used conditions and balances
         $result = $f3->get('DB')->exec(
-            'SELECT `condition`, `counterbalance` FROM data WHERE prolificid!=:id && `status`!=:status1', //  && `status`!=:status2
+            'SELECT `condition`, `counterbalance` FROM data WHERE prolificid!=:id && `status`!=:status_complete && `status`!=:status_quitearly', 
             array(
                 ':id' => $prolificid,
-                ':status1' => $f3->get('STATUS.NOT_ACCEPTED'),
-                //':status2' => $f3->get('STATUS.QUITEARLY')
+                ':status_complete' => $f3->get('STATUS.NOT_ACCEPTED'),
+                ':status_quitearly' => $f3->get('STATUS.QUITEARLY')
             )
         );
         foreach ($result as $row) {
@@ -225,7 +301,7 @@ class Experiment {
             $counterbalances[$row['counterbalance']]++;
         }
 
-        // assign to a condition
+        // Assign to a condition
         $lowest_val = min($conditions);
         $possibles = array();
         foreach ($conditions as $condition => $value) {
@@ -235,7 +311,7 @@ class Experiment {
         }
         $cond = $possibles[rand(0, count($possibles) - 1)];
 
-        // counterbalancing
+        // Counterbalancing
         $lowest_val = min($counterbalances);
         $possibles = array();
         foreach ($counterbalances as $counterbalance => $value) {
@@ -245,7 +321,7 @@ class Experiment {
         }
         $counterbalance = $possibles[rand(0, count($possibles) - 1)];
         
-        // return
+        // Return
         return array(
             $cond,
             $counterbalance

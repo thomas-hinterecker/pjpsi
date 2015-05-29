@@ -18,11 +18,3 @@ function boolpercent(arr) {
 	}
 	return 100* count / arr.length;
 }
-
-function lowercaseFirstLetter (str) {
-    return str.charAt(0).toLowerCase() + str.slice(1);
-};
-
-function uppercaseFirstLetter (str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-};

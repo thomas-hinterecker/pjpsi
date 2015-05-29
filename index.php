@@ -1,11 +1,8 @@
 <?php
-
 require 'php/vendor/autoload.php';
-
 use bcosca\fatfree;
 
 $f3 = Base::instance();
-
 // F3 AUTOLOADER
 $f3->set('AUTOLOAD', 'php/classes/');
 // Config file
@@ -24,7 +21,7 @@ $f3->set('STATUS.SUBMITTED', 4);
 $f3->set('STATUS.CREDITED', 5);
 $f3->set('STATUS.QUITEARLY', 6);
 
-// Database connection
+// Estahblish database connection.
 $f3->set(
 	'DB', 
 	new DB\SQL(
@@ -34,12 +31,13 @@ $f3->set(
 	)
 );
 
-// ROUTES
-// Experiment flow
+// SYSTEM ROUTES
+// Experimental flow
 $f3->route('GET /','Experiment->index');
 $f3->route('GET /consent/@prolificid','Experiment->consent');
 $f3->route('GET /exp/@prolificid','Experiment->exp');
-$f3->route('GET /complete/@prolificid','Experiment->complete');
+$f3->route('GET /debriefing/@prolificid','Experiment->debriefing');
+$f3->route('POST /complete','Experiment->complete');
 // Data
 $f3->map('/sync/@prolificid', 'Subject');
 $f3->route('GET /credit/@prolificid','Subject->credit');

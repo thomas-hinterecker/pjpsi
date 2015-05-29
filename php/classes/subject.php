@@ -27,10 +27,11 @@ class Subject {
     function _updateSubject ($f3, $prolificid, $data) {
         if (empty($prolificid) == false) {
             $f3->get('DB')->exec(
-                'UPDATE data SET datastring=:newdata WHERE prolificid=:id',
+                'UPDATE data SET datastring=:newdata, status=:status WHERE prolificid=:id',
                 array(
                     ':id' => $prolificid,
-                    ':newdata' => $data
+                    ':newdata' => $data,
+                    ':status' => $f3->get('STATUS.STARTED')
                 )
             );
 
